@@ -1,0 +1,5 @@
+.idea*
+.tar.gz
+.o
+.ll
+nova
