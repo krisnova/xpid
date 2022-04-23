@@ -15,12 +15,14 @@
 \*===========================================================================*/
 
 // Proc Module
+#include <stdio.h>
 #include <sys/types.h>
+#include "xpid.h"
 
-int proc_dir_ls(pid_t pid) {
+int proc_dir_ls(int pid) {
   return 0;
 }
 
-int proc_dir_nav(pid_t pid) {
+int proc_dir_nav(int pid) {
   return 0;
 }

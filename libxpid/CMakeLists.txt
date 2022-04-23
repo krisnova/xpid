@@ -27,6 +27,7 @@ project(xpid VERSION ${SO_VERSION} DESCRIPTION "Linux Process Discovery")
 #
 add_library(xpid SHARED
         src/xpid.c
+        src/xpid_proc.c
         )
 
 #find_package(OpenSSL REQUIRED)

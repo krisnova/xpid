@@ -16,11 +16,6 @@
 
 package modproc
 
-// #cgo LDFLAGS: -lxpid
-//
-// #include "xpid.h"
-import "C"
-
 import (
 	api "github.com/kris-nova/xpid/pkg/api/v1"
 	module "github.com/kris-nova/xpid/pkg/modules"
