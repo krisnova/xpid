@@ -16,19 +16,19 @@
 
 package procx
 
-import api "github.com/kris-nova/xpid/pkg/api/v1"
+import (
+	api "github.com/kris-nova/xpid/pkg/api/v1"
+	module "github.com/kris-nova/xpid/pkg/modules"
+)
 
 type ProcessExplorerModule interface {
-	Execute(process api.Process) (ProcessExplorerResult, error)
+	Meta() *module.Meta
+	Execute(process *api.Process) (ProcessExplorerResult, error)
 }
 
 type ProcessExplorerResult interface {
 }
 
 type ProcessExplorerEncoder interface {
-	Encode(result ProcessExplorerResult) []byte
-}
-
-type ProcessExplorerWriter interface {
-	Write(p []byte) (n int, err error)
+	Encode(result ProcessExplorerResult) ([]byte, error)
 }

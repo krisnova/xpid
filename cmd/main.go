@@ -21,8 +21,14 @@ import (
 	"os"
 	"time"
 
+	"github.com/kris-nova/xpid/pkg/encoders/raw"
+
+	modebpf "github.com/kris-nova/xpid/pkg/modules/ebpf"
+	modproc "github.com/kris-nova/xpid/pkg/modules/proc"
+
+	"github.com/kris-nova/xpid/pkg/procx"
+
 	"github.com/kris-nova/xpid"
-	"github.com/kris-nova/xpid/pkg/service"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
@@ -30,7 +36,16 @@ import (
 var cfg = &AppOptions{}
 
 type AppOptions struct {
-	verbose bool
+	Verbose  bool
+	PIDQuery string // 0, 1, 5-10
+
+	// Encoders
+	Output string
+
+	// Modules
+	All  bool
+	EBPF bool
+	Proc bool
 }
 
 func main() {
@@ -58,6 +73,19 @@ func main() {
 Investigate pid 123 and write the report to out.txt
 	xpid -p 123 > out.txt
 
+Find all possible pids, and investigate each one (slow). The --all flag is default.
+	xpid > out.txt 
+	xpid --all > out.txt
+
+Investigate all pids from 0 to 1000 and write the report to out.json
+	xpid -p 0-1000 -o json > out.json
+
+Find all eBPF pids at runtime (fast).
+	xpid --ebpf
+
+Find all proc pids at runtime (fast).
+	xpid --proc
+
 Investigate pid 123 using the "--proc" module only.
 	xpid --proc -p 123 > out.txt
 
@@ -69,7 +97,34 @@ Investigate pid 123 using the "--proc" module only.
 			&cli.BoolFlag{
 				Name:        "verbose",
 				Aliases:     []string{"v"},
-				Destination: &cfg.verbose,
+				Destination: &cfg.Verbose,
+			},
+			&cli.StringFlag{
+				Name:        "pid",
+				Aliases:     []string{"pids", "p"},
+				Destination: &cfg.PIDQuery,
+			},
+			&cli.StringFlag{
+				Name:        "output",
+				Aliases:     []string{"o", "out"},
+				Destination: &cfg.Output,
+			},
+			// Modules should have capital single letter flags!
+			&cli.BoolFlag{
+				Name:        "all",
+				Aliases:     []string{"A"},
+				Destination: &cfg.All,
+				Value:       true,
+			},
+			&cli.BoolFlag{
+				Name:        "ebpf",
+				Aliases:     []string{"E"},
+				Destination: &cfg.EBPF,
+			},
+			&cli.BoolFlag{
+				Name:        "proc",
+				Aliases:     []string{"P"},
+				Destination: &cfg.Proc,
 			},
 		},
 		EnableBashCompletion: false,
@@ -85,24 +140,52 @@ Investigate pid 123 using the "--proc" module only.
 			return nil
 		},
 		Action: func(c *cli.Context) error {
+			pids := procx.PIDQuery(cfg.PIDQuery)
+			if pids == nil {
+				return fmt.Errorf("invalid pid query: %s", cfg.PIDQuery)
+			}
 
-			//
-			novaObject := service.NewNova()
-			return novaObject.Run()
-			//
+			// Initialize the explorer based on flags
+			x := procx.NewProcessExplorer(pids)
 
+			// Encoder
+			encoder := raw.NewRawEncoder()
+			x.SetEncoder(encoder) // Default raw encoder for now
+
+			// Modules
+			if cfg.All {
+				cfg.EBPF = true
+				cfg.Proc = true
+			}
+			if cfg.Proc {
+				pmod := modproc.NewProcModule()
+				x.AddModule(pmod)
+			}
+			if cfg.EBPF {
+				emod := modebpf.NewEBPFModule()
+				x.AddModule(emod)
+			}
+			x.SetWriter(os.Stdout)
+
+			// Execute
+			return x.Execute()
 		},
 	}
-	app.Run(os.Args)
+	err := app.Run(os.Args)
+	if err != nil {
+		logrus.Errorf("execution error: %v", err)
+		os.Exit(1)
+	}
+	os.Exit(0)
 }
 
 // Preloader will run for ALL commands, and is used
 // to initalize the runtime environments of the program.
 func Preloader() {
 	/* Flag parsing */
-	if cfg.verbose {
-		logrus.SetLevel(logrus.InfoLevel)
+	if cfg.Verbose {
+		logrus.SetLevel(logrus.DebugLevel)
 	} else {
-		logrus.SetLevel(logrus.WarnLevel)
+		logrus.SetLevel(logrus.InfoLevel)
 	}
 }
