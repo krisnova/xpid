@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC -shared -Wl,-soname,libxpid.so.0.0.1 -o libxpid.so.0.0.1 CMakeFiles/xpid.dir/src/xpid.c.o 
