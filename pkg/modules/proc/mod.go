@@ -16,6 +16,11 @@
 
 package modproc
 
+// #cgo LDFLAGS: -lxpid
+//
+// #include "xpid.h"
+import "C"
+
 import (
 	api "github.com/kris-nova/xpid/pkg/api/v1"
 	module "github.com/kris-nova/xpid/pkg/modules"
@@ -25,6 +30,14 @@ import (
 var _ procx.ProcessExplorerModule = &ProcModule{}
 
 type ProcModule struct {
+}
+
+var _ procx.ProcessExplorerResult = &ProcModuleResult{}
+
+type ProcModuleResult struct {
+	pid *api.Process
+	ls  bool
+	nav bool
 }
 
 func NewProcModule() *ProcModule {
@@ -42,5 +55,14 @@ func (m *ProcModule) Meta() *module.Meta {
 }
 
 func (m *ProcModule) Execute(process *api.Process) (procx.ProcessExplorerResult, error) {
+
+	result := &ProcModuleResult{}
+
+	// See if ls
+	result.ls = proc_dir_ls(process.PID)
+
+	// See if nav
+	result.nav = proc_dir_nav(process.PID)
+
 	return nil, nil
 }

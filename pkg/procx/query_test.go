@@ -39,7 +39,7 @@ func TestPIDQuery(t *testing.T) {
 	if len(pids) != 1 {
 		t.Errorf("invalid PID query: missing 100")
 	}
-	if pids[0].PID != int32(100) {
+	if pids[0].PID != int64(100) {
 		t.Errorf("invalid PID: 100")
 	}
 }

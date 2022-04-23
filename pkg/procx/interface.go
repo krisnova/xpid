@@ -27,6 +27,7 @@ type ProcessExplorerModule interface {
 }
 
 type ProcessExplorerResult interface {
+	// Pass to encoder
 }
 
 type ProcessExplorerEncoder interface {

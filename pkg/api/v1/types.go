@@ -17,10 +17,10 @@
 package v1
 
 type Process struct {
-	PID int32
+	PID int64
 }
 
-func ProcessPID(pid int32) *Process {
+func ProcessPID(pid int64) *Process {
 	return &Process{
 		PID: pid,
 	}

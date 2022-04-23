@@ -49,7 +49,7 @@ func PIDQuery(raw string) []*api.Process {
 			right = sw
 		}
 		for i := left; i <= right; i++ {
-			p := api.ProcessPID(int32(i))
+			p := api.ProcessPID(int64(i))
 			processes = append(processes, p)
 		}
 	} else {
@@ -58,7 +58,7 @@ func PIDQuery(raw string) []*api.Process {
 			logrus.Warnf("invalid pid query: %v\n", err)
 			return nil
 		}
-		p := api.ProcessPID(int32(pid))
+		p := api.ProcessPID(int64(pid))
 		processes = append(processes, p)
 	}
 	return processes

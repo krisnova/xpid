@@ -38,7 +38,7 @@ func ProcPath() string {
 // MaxPid will return the system specific maximum PID number
 //
 // For Linux systems this can be found in proc(5) if it is mounted!
-func MaxPid() int32 {
+func MaxPid() int64 {
 	maxPidFile := filepath.Join(ProcPath(), "sys/kernel/pid_max")
 	bytes, err := os.ReadFile(maxPidFile)
 	if err != nil {
@@ -52,5 +52,5 @@ func MaxPid() int32 {
 		logrus.Warnf("err reading %s: %v", maxPidFile, err)
 		return -1
 	}
-	return int32(vi)
+	return int64(vi)
 }

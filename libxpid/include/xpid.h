@@ -16,7 +16,9 @@
 
 #ifndef LIB_XPID_H
 #define LIB_XPID_H
+#include <sys/types.h>
 
-//
+int proc_dir_ls(pid_t pid);
+int proc_dir_nav(pid_t pid);
 
 #endif // end LIB_XPID_H

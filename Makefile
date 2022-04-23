@@ -25,7 +25,7 @@ license     =  MIT
 year        =  2022
 copyright   =  Copyright (c) $(year)
 
-compile: ## Compile for the local architecture ⚙
+compile: libxpid ## Compile for the local architecture ⚙
 	@echo "Compiling..."
 	go build -ldflags "\
 	-X 'github.com/$(org)/$(target).Version=$(version)' \
@@ -39,6 +39,7 @@ compile: ## Compile for the local architecture ⚙
 install: ## Install the program to /usr/bin 🎉
 	@echo "Installing..."
 	sudo cp $(target) /usr/bin/$(target)
+	cd libxpid/build && make install
 
 test: clean compile install ## 🤓 Run go tests
 	@echo "Testing..."
@@ -47,6 +48,14 @@ test: clean compile install ## 🤓 Run go tests
 clean: ## Clean your artifacts 🧼
 	@echo "Cleaning..."
 	rm -rvf release/*
+
+.PHONY: libxpid
+libxpid: ## Compile and install libxpid
+	@echo "Building libxpid..."
+	mkdir -p libxpid/build
+	cd libxpid/build && make clean && make
+
+
 
 .PHONY: release
 release: ## Make the binaries for a GitHub release 📦
