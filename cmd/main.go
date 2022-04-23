@@ -143,25 +143,23 @@ Investigate pid 123 using the "--proc" module only.
 		},
 		Action: func(c *cli.Context) error {
 			var pids []*v1.Process
+			var query string
 			if cfg.PIDQuery != "" {
-				pids = procx.PIDQuery(cfg.PIDQuery)
-				if pids == nil {
-					return fmt.Errorf("invalid pid query: %s", cfg.PIDQuery)
-				}
+				query = cfg.PIDQuery
 			} else {
 				max := procx.MaxPid()
 				if max == -1 {
 					return fmt.Errorf("unable to read from /proc")
 				}
-				query := fmt.Sprintf("1-%d", max)
-				fmt.Println(query)
-				pids = procx.PIDQuery(query)
-				if pids == nil {
-					return fmt.Errorf("invalid pid query: %s", cfg.PIDQuery)
-				}
+				query = fmt.Sprintf("1-%d", max)
 			}
 
 			// Initialize the explorer based on flags
+			pids = procx.PIDQuery(query)
+			if pids == nil {
+				return fmt.Errorf("invalid pid query: %s", cfg.PIDQuery)
+			}
+			logrus.Infof("Query : %s\n", query)
 			x := procx.NewProcessExplorer(pids)
 
 			// Encoder
