@@ -52,12 +52,8 @@ func (m *ProcModule) Meta() *module.Meta {
 func (m *ProcModule) Execute(process *api.Process) (procx.ProcessExplorerResult, error) {
 
 	result := &ProcModuleResult{}
-
-	// See if ls
 	result.ls = proc_dir_ls(process.PID)
-
-	// See if nav
 	result.nav = proc_dir_nav(process.PID)
 
-	return nil, nil
+	return result, nil
 }

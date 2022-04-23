@@ -24,6 +24,7 @@ authoremail =  kris@nivenly.com
 license     =  MIT
 year        =  2022
 copyright   =  Copyright (c) $(year)
+cstyle      =  Google
 
 compile: libxpid ## Compile for the local architecture ⚙
 	@echo "Compiling..."
@@ -48,6 +49,13 @@ test: clean compile install ## 🤓 Run go tests
 clean: ## Clean your artifacts 🧼
 	@echo "Cleaning..."
 	rm -rvf release/*
+
+format: ## Format the code
+	@echo "  ->  Formatting code"
+	clang-format -i -style=$(cstyle) libxpid/include/*.h
+	clang-format -i -style=$(cstyle) libxpid/src/*.h
+	clang-format -i -style=$(cstyle) libxpid/src/*.c
+
 
 .PHONY: libxpid
 libxpid: ## Compile and install libxpid

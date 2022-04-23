@@ -13,18 +13,13 @@
 *                       This machine kills fascists.                        *
 *                                                                           *
 \*===========================================================================*/
+#ifndef XPID_PROC_H
+#define XPID_PROC_H
 
-// Proc Module
-#include <stdio.h>
-#include <sys/types.h>
-#include "xpid.h"
+#define PROCFS_PATH_MAX  1024
+#define PROCFS_DEFAULT   "/proc"
 
-int proc_dir_ls(pid_t pid) {
-  printf("proc_dir_ls(%d)\n", pid);
-  return 0;
-}
+void procfs(char *p);
+void procfs_pid(char *p, int pid);
 
-int proc_dir_nav(pid_t pid) {
-  printf("proc_dir_nav(%d)\n", pid);
-  return 0;
-}
+#endif  // end XPID_PROC_H

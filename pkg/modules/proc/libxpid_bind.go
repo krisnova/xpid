@@ -22,7 +22,7 @@ package modproc
 import "C"
 
 func proc_dir_ls(pid int64) bool {
-	x := C.proc_dir_ls(C.int(pid))
+	x := C.proc_dir_ls(C.int(int(pid)))
 	if int(x) == 1 {
 		return true
 	}
@@ -30,7 +30,7 @@ func proc_dir_ls(pid int64) bool {
 }
 
 func proc_dir_nav(pid int64) bool {
-	x := C.proc_dir_nav(C.int(pid))
+	x := C.proc_dir_nav(C.int(int(pid)))
 	if int(x) == 1 {
 		return true
 	}

@@ -14,3 +14,13 @@
 *                                                                           *
 \*===========================================================================*/
 
+#include <stdio.h>
+#include "proc.h"
+
+void procfs(char *p) {
+  sprintf(p, "%s", PROCFS_DEFAULT);
+}
+
+void procfs_pid(char *p, int pid) {
+  sprintf(p, "%s/%d", PROCFS_DEFAULT, pid);
+}
