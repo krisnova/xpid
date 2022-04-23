@@ -21,6 +21,8 @@ import (
 	"os"
 	"time"
 
+	v1 "github.com/kris-nova/xpid/pkg/api/v1"
+
 	"github.com/kris-nova/xpid/pkg/encoders/raw"
 
 	modebpf "github.com/kris-nova/xpid/pkg/modules/ebpf"
@@ -140,9 +142,23 @@ Investigate pid 123 using the "--proc" module only.
 			return nil
 		},
 		Action: func(c *cli.Context) error {
-			pids := procx.PIDQuery(cfg.PIDQuery)
-			if pids == nil {
-				return fmt.Errorf("invalid pid query: %s", cfg.PIDQuery)
+			var pids []*v1.Process
+			if cfg.PIDQuery != "" {
+				pids = procx.PIDQuery(cfg.PIDQuery)
+				if pids == nil {
+					return fmt.Errorf("invalid pid query: %s", cfg.PIDQuery)
+				}
+			} else {
+				max := procx.MaxPid()
+				if max == -1 {
+					return fmt.Errorf("unable to read from /proc")
+				}
+				query := fmt.Sprintf("1-%d", max)
+				fmt.Println(query)
+				pids = procx.PIDQuery(query)
+				if pids == nil {
+					return fmt.Errorf("invalid pid query: %s", cfg.PIDQuery)
+				}
 			}
 
 			// Initialize the explorer based on flags
