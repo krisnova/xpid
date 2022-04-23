@@ -1,24 +1,25 @@
-/******************************************************************************
-* MIT License
-* Copyright (c) 2022 Kris Nóva <kris@nivenly.com>
-*
-* ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-* ┃   ███╗   ██╗ ██████╗ ██╗   ██╗ █████╗  ┃
-* ┃   ████╗  ██║██╔═████╗██║   ██║██╔══██╗ ┃
-* ┃   ██╔██╗ ██║██║██╔██║██║   ██║███████║ ┃
-* ┃   ██║╚██╗██║████╔╝██║╚██╗ ██╔╝██╔══██║ ┃
-* ┃   ██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║ ┃
-* ┃   ╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝ ┃
-* ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-*
-*****************************************************************************/
+/*===========================================================================*\
+ *           MIT License Copyright (c) 2022 Kris Nóva <kris@nivenly.com>     *
+ *                                                                           *
+ *                ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓                *
+ *                ┃   ███╗   ██╗ ██████╗ ██╗   ██╗ █████╗   ┃                *
+ *                ┃   ████╗  ██║██╔═████╗██║   ██║██╔══██╗  ┃                *
+ *                ┃   ██╔██╗ ██║██║██╔██║██║   ██║███████║  ┃                *
+ *                ┃   ██║╚██╗██║████╔╝██║╚██╗ ██╔╝██╔══██║  ┃                *
+ *                ┃   ██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║  ┃                *
+ *                ┃   ╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝  ┃                *
+ *                ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛                *
+ *                                                                           *
+ *                       This machine kills fascists.                        *
+ *                                                                           *
+\*===========================================================================*/
 
 package main
 
 import (
 	"fmt"
-	"github.com/kris-nova/go-nova"
-	x "github.com/kris-nova/go-nova/internal/nova"
+	"github.com/kris-nova/nova"
+	"github.com/kris-nova/nova/internal/service"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"os"
@@ -51,7 +52,7 @@ func main() {
 		Copyright: nova.Copyright,
 		HelpName:  nova.Copyright,
 		Usage:     "A go program.",
-		UsageText: `nova <options> <flags> 
+		UsageText: `service <options> <flags> 
 A longer sentence, about how exactly to use this program`,
 		Commands: []*cli.Command{
 			&cli.Command{},
@@ -78,7 +79,7 @@ A longer sentence, about how exactly to use this program`,
 		Action: func(c *cli.Context) error {
 
 			//
-			novaObject := x.NewNova()
+			novaObject := service.NewNova()
 			return novaObject.Run()
 			//
 
