@@ -13,38 +13,37 @@
 *
 *****************************************************************************/
 
-package nova
+package procx
 
 import (
-	"github.com/kris-nova/go-nova/pkg/api"
+	api "github.com/kris-nova/xpid/pkg/api/v1"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
-// Compile check *Nova implements Runner interface
-var _ api.Runner = &Nova{}
-
-type Nova struct {
-	// Fields
+type ProcessExplorer struct {
+	processes []*api.Process
+	modules   []ProcessExplorerModule
+	encoder   ProcessExplorerEncoder
+	writer    ProcessExplorerWriter
 }
 
-func NewNova() *Nova {
-	return &Nova{}
+func NewProcessExplorer(processes []*api.Process) *ProcessExplorer {
+	return &ProcessExplorer{
+		processes: processes,
+	}
 }
 
-var (
-	runtimeNova bool = true
-)
+func (x *ProcessExplorer) AddModule(m ProcessExplorerModule) {
+	x.modules = append(x.modules, m)
+}
 
-func (n *Nova) Run() error {
-	client := api.Client{}
-	server := api.Server{}
-	logrus.Infof("Client: %x", client)
-	logrus.Infof("Server: %x", server)
-	for runtimeNova == true {
-		time.Sleep(1 * time.Second)
-		logrus.Infof("Sleeping...\n")
+func (x *ProcessExplorer) SetEncoder(e ProcessExplorerEncoder) {
+	x.encoder = e
+}
 
+func (x *ProcessExplorer) Execute() error {
+	for _, process := range x.processes {
+		logrus.Infof("Process: %d\n", process.PID)
 	}
 	return nil
 }

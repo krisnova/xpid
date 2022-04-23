@@ -14,8 +14,14 @@
  *                                                                           *
 \*===========================================================================*/
 
-package api
+package v1
 
-type Runner interface {
-	Run() error
+type Process struct {
+	PID int32
+}
+
+func ProcessPID(pid int32) *Process {
+	return &Process{
+		PID: pid,
+	}
 }

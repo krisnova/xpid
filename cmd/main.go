@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/kris-nova/xpid"
-	"github.com/kris-nova/xpid/internal/service"
+	"github.com/kris-nova/xpid/pkg/service"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
@@ -52,9 +52,16 @@ func main() {
 		},
 		Copyright: xpid.Copyright,
 		HelpName:  xpid.Copyright,
-		Usage:     "A go program.",
-		UsageText: `service <options> <flags> 
-A longer sentence, about how exactly to use this program`,
+		Usage:     "Linux Process Discovery.",
+		UsageText: `xpid [flags] -o [output]
+
+Investigate pid 123 and write the report to out.txt
+	xpid -p 123 > out.txt
+
+Investigate pid 123 using the "--proc" module only.
+	xpid --proc -p 123 > out.txt
+
+`,
 		Commands: []*cli.Command{
 			&cli.Command{},
 		},
@@ -65,9 +72,9 @@ A longer sentence, about how exactly to use this program`,
 				Destination: &cfg.verbose,
 			},
 		},
-		EnableBashCompletion: true,
+		EnableBashCompletion: false,
 		HideHelp:             false,
-		HideVersion:          false,
+		HideVersion:          true,
 		Before: func(c *cli.Context) error {
 			Preloader()
 			fmt.Fprintf(c.App.Writer, xpid.Banner())

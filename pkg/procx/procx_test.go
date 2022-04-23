@@ -13,13 +13,10 @@
 *
 *****************************************************************************/
 
-package nova
+package procx
 
 import "testing"
 
-func TestNovaRunner(t *testing.T) {
-	x := NewNova()
-	if x == nil {
-		t.Errorf("Failure")
-	}
+func TestProcessExplorer(t *testing.T) {
+	// TODO
 }
