@@ -53,7 +53,17 @@ clean: ## Clean your artifacts 🧼
 libxpid: ## Compile and install libxpid
 	@echo "Building libxpid..."
 	mkdir -p libxpid/build
-	cd libxpid/build && make clean && make
+	cd libxpid/build && make
+
+.PHONY: libxpid-clean
+libxpid-clean: ## Clean libxpid
+	@echo "Clean libxpid..."
+	cd libxpid/build && make clean
+
+.PHONY: libxpid-install
+libxpid-install: ## Clean libxpid
+	@echo "Clean libxpid..."
+	cd libxpid/build && make clean
 
 
 
