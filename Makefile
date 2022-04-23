@@ -17,7 +17,7 @@
 all: compile
 
 version     =  0.0.1
-target      =  4n6
+target      =  xpid
 org         =  kris-nova
 authorname  =  Kris Nóva
 authoremail =  kris@nivenly.com

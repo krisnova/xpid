@@ -18,12 +18,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/kris-nova/nova"
-	"github.com/kris-nova/nova/internal/service"
-	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 	"os"
 	"time"
+
+	"github.com/kris-nova/xpid"
+	"github.com/kris-nova/xpid/internal/service"
+	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
 )
 
 var cfg = &AppOptions{}
@@ -40,17 +41,17 @@ func main() {
 		Usage:   "The version of the program.",
 	}
 	app := &cli.App{
-		Name:     nova.Name,
-		Version:  nova.Version,
+		Name:     xpid.Name,
+		Version:  xpid.Version,
 		Compiled: time.Now(),
 		Authors: []*cli.Author{
 			&cli.Author{
-				Name:  nova.AuthorName,
-				Email: nova.AuthorEmail,
+				Name:  xpid.AuthorName,
+				Email: xpid.AuthorEmail,
 			},
 		},
-		Copyright: nova.Copyright,
-		HelpName:  nova.Copyright,
+		Copyright: xpid.Copyright,
+		HelpName:  xpid.Copyright,
 		Usage:     "A go program.",
 		UsageText: `service <options> <flags> 
 A longer sentence, about how exactly to use this program`,
@@ -69,7 +70,7 @@ A longer sentence, about how exactly to use this program`,
 		HideVersion:          false,
 		Before: func(c *cli.Context) error {
 			Preloader()
-			fmt.Fprintf(c.App.Writer, nova.Banner())
+			fmt.Fprintf(c.App.Writer, xpid.Banner())
 			return nil
 		},
 		After: func(c *cli.Context) error {
