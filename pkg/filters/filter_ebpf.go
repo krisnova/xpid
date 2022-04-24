@@ -14,51 +14,15 @@
  *                                                                           *
 \*===========================================================================*/
 
-package Raw
+package filter
 
-import (
-	"fmt"
+import api "github.com/kris-nova/xpid/pkg/api/v1"
 
-	filter "github.com/kris-nova/xpid/pkg/filters"
+var _ ProcessFilter = RetainOnlyEBPF
 
-	api "github.com/kris-nova/xpid/pkg/api/v1"
-	"github.com/kris-nova/xpid/pkg/procx"
-)
-
-var _ procx.ProcessExplorerEncoder = &RawEncoder{}
-
-type RawEncoder struct {
-	filters []filter.ProcessFilter
-	format  Formatter
-}
-
-type Formatter func(p *api.Process) string
-
-var _ Formatter = DefaultFormatter
-
-func DefaultFormatter(p *api.Process) string {
-	return fmt.Sprintf("[%d] %s (%s)\n", p.PID, p.Name, p.CommandLine)
-}
-
-func (r *RawEncoder) SetFormat(f Formatter) {
-	r.format = f
-}
-
-func (r *RawEncoder) Encode(p *api.Process) ([]byte, error) {
-	for _, f := range r.filters {
-		if !f(p) {
-			return []byte(""), fmt.Errorf("filtered")
-		}
+func RetainOnlyEBPF(p *api.Process) bool {
+	if p.EBPF {
+		return true
 	}
-	return []byte(r.format(p)), nil
-}
-
-func (r *RawEncoder) AddFilter(f filter.ProcessFilter) {
-	r.filters = append(r.filters, f)
-}
-
-func NewRawEncoder() *RawEncoder {
-	return &RawEncoder{
-		format: DefaultFormatter,
-	}
+	return false
 }

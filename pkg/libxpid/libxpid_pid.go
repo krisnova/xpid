@@ -41,12 +41,24 @@ func ProcPidComm(pid int64) string {
 
 func ProcPidCmdline(pid int64) string {
 	var data string
-	cdata := (*C.char)(C.CString(data))
-	defer C.free(unsafe.Pointer(cdata))
+	cdata := C.CString(data)
 	x := C.proc_pid_cmdline(C.int(int(pid)), cdata)
 	xint := int(x)
 	if xint == 1 {
 		retstr := strings.ReplaceAll(C.GoString(cdata), "\n", "")
+		C.free(unsafe.Pointer(cdata))
+		return retstr
+	}
+	return ""
+}
+
+func ProcPidMounts(pid int64) string {
+	var data string
+	cdata := C.CString(data)
+	x := C.proc_pid_mounts(C.int(int(pid)), cdata)
+	xint := int(x)
+	if xint == 1 {
+		retstr := C.GoString(cdata)
 		C.free(unsafe.Pointer(cdata))
 		return retstr
 	}

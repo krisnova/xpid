@@ -19,46 +19,15 @@ package Raw
 import (
 	"fmt"
 
-	filter "github.com/kris-nova/xpid/pkg/filters"
+	"github.com/fatih/color"
 
 	api "github.com/kris-nova/xpid/pkg/api/v1"
-	"github.com/kris-nova/xpid/pkg/procx"
 )
 
-var _ procx.ProcessExplorerEncoder = &RawEncoder{}
+var _ Formatter = ColorFormatter
 
-type RawEncoder struct {
-	filters []filter.ProcessFilter
-	format  Formatter
-}
-
-type Formatter func(p *api.Process) string
-
-var _ Formatter = DefaultFormatter
-
-func DefaultFormatter(p *api.Process) string {
-	return fmt.Sprintf("[%d] %s (%s)\n", p.PID, p.Name, p.CommandLine)
-}
-
-func (r *RawEncoder) SetFormat(f Formatter) {
-	r.format = f
-}
-
-func (r *RawEncoder) Encode(p *api.Process) ([]byte, error) {
-	for _, f := range r.filters {
-		if !f(p) {
-			return []byte(""), fmt.Errorf("filtered")
-		}
-	}
-	return []byte(r.format(p)), nil
-}
-
-func (r *RawEncoder) AddFilter(f filter.ProcessFilter) {
-	r.filters = append(r.filters, f)
-}
-
-func NewRawEncoder() *RawEncoder {
-	return &RawEncoder{
-		format: DefaultFormatter,
-	}
+func ColorFormatter(p *api.Process) string {
+	pidColor := color.New(color.FgBlue, color.Bold)
+	cliColor := color.New(color.FgYellow, color.Italic)
+	return fmt.Sprintf("[%s] %s (%s)\n", pidColor.Sprintf("%d", p.PID), color.GreenString("%s", p.Name), cliColor.Sprintf("%s", p.CommandLine))
 }

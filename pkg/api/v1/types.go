@@ -41,6 +41,12 @@ type Process struct {
 	// read on this file will return 0 characters
 	CommandLine string
 
+	// EBPF is an xpid specific field that attempts to detect
+	// if a specific PID is running any eBPF related probes or maps.
+	//
+	// Will be set to true is eBPF is detected.
+	EBPF bool
+
 	// The process unique ID.
 	PID int64
 }

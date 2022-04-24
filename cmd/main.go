@@ -21,6 +21,8 @@ import (
 	"os"
 	"time"
 
+	modebpf "github.com/kris-nova/xpid/pkg/modules/ebpf"
+
 	filter "github.com/kris-nova/xpid/pkg/filters"
 
 	Raw "github.com/kris-nova/xpid/pkg/encoders/raw"
@@ -29,7 +31,6 @@ import (
 
 	v1 "github.com/kris-nova/xpid/pkg/api/v1"
 
-	modebpf "github.com/kris-nova/xpid/pkg/modules/ebpf"
 	modproc "github.com/kris-nova/xpid/pkg/modules/proc"
 
 	"github.com/kris-nova/xpid/pkg/procx"
@@ -47,12 +48,12 @@ type AppOptions struct {
 	// Encoders
 	Output string
 
-	// Show hidden pids only
 	Hidden bool
+	Color  bool
+	Probe  bool
 
 	// Modules
 	All  bool
-	EBPF bool
 	Proc bool
 }
 
@@ -90,13 +91,6 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 
 Find all eBPF pids at runtime (fast).
 	xpid --ebpf
-
-Find all proc pids at runtime (fast).
-	xpid --proc
-
-Investigate pid 123 using the "--proc" module only.
-	xpid --proc 123 > out.txt
-
 `,
 		Commands: []*cli.Command{
 			&cli.Command{},
@@ -117,7 +111,19 @@ Investigate pid 123 using the "--proc" module only.
 				Name:        "all",
 				Aliases:     []string{"A"},
 				Destination: &cfg.All,
-				Value:       true,
+				Value:       false,
+			},
+			&cli.BoolFlag{
+				Name:        "color",
+				Aliases:     []string{"c"},
+				Destination: &cfg.Color,
+				Value:       false,
+			},
+			&cli.BoolFlag{
+				Name:        "probe",
+				Aliases:     []string{"bpf", "ebpf", "p"},
+				Destination: &cfg.Probe,
+				Value:       false,
 			},
 			&cli.BoolFlag{
 				Name:        "hidden",
@@ -126,14 +132,10 @@ Investigate pid 123 using the "--proc" module only.
 				Value:       false,
 			},
 			&cli.BoolFlag{
-				Name:        "ebpf",
-				Aliases:     []string{"E"},
-				Destination: &cfg.EBPF,
-			},
-			&cli.BoolFlag{
 				Name:        "proc",
 				Aliases:     []string{"P"},
 				Destination: &cfg.Proc,
+				Value:       false,
 			},
 		},
 		EnableBashCompletion: false,
@@ -172,8 +174,19 @@ Investigate pid 123 using the "--proc" module only.
 			case "json":
 				encoder = json.NewJSONEncoder()
 				break
-			default:
+			case "raw":
 				encoder = Raw.NewRawEncoder()
+				break
+			default:
+				rawcolor := Raw.NewRawEncoder()
+				rawcolor.SetFormat(Raw.ColorFormatter)
+				encoder = rawcolor
+			}
+
+			if cfg.Color {
+				rawcolor := Raw.NewRawEncoder()
+				rawcolor.SetFormat(Raw.ColorFormatter)
+				encoder = rawcolor
 			}
 
 			// Filters
@@ -185,18 +198,21 @@ Investigate pid 123 using the "--proc" module only.
 			// Set encoder after filters are applied
 			x.SetEncoder(encoder)
 
-			// Modules
+			if !cfg.Probe && !cfg.Proc {
+				cfg.All = true
+			}
 			if cfg.All {
-				//cfg.EBPF = true
 				cfg.Proc = true
+				cfg.Probe = true
 			}
 			if cfg.Proc {
 				pmod := modproc.NewProcModule()
 				x.AddModule(pmod)
 			}
-			if cfg.EBPF {
-				emod := modebpf.NewEBPFModule()
-				x.AddModule(emod)
+			if cfg.Probe {
+				bpfmod := modebpf.NewEBPFModule()
+				x.AddModule(bpfmod)
+				encoder.AddFilter(filter.RetainOnlyEBPF)
 			}
 			x.SetWriter(os.Stdout)
 

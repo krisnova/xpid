@@ -62,6 +62,7 @@ int proc_pid_comm(pid_t pid, char *data){
 
 /**
  * /proc/[pid]/cmdline
+ *
  * This read-only file holds the complete command line for
  * the process, unless the process is a zombie.  In the
  * latter case, there is nothing in this file: that is, a
@@ -102,3 +103,41 @@ int proc_pid_cmdline(pid_t pid, char *data){
   return 1;
 }
 
+/**
+ * /proc/[pid]/mounts (since Linux 2.4.19)
+ *
+ * This file lists all the filesystems currently mounted in
+ * the process's mount namespace (see mount_namespaces(7)).
+ * The format of this file is documented in fstab(5).
+ *
+ * Since kernel version 2.6.15, this file is pollable: after
+ * opening the file for reading, a change in this file (i.e.,
+ * a filesystem mount or unmount) causes select(2) to mark
+ * the file descriptor as having an exceptional condition,
+ * and poll(2) and epoll_wait(2) mark the file as having a
+ * priority event (POLLPRI).  (Before Linux 2.6.30, a change
+ * in this file was indicated by the file descriptor being
+ * marked as readable for select(2), and being marked as
+ * having an error condition for poll(2) and epoll_wait(2).)
+ *
+ * @param pid
+ * @param data
+ * @return
+ */
+int proc_pid_mounts(pid_t pid, char *data){
+  char *p = malloc(PROCFS_PATH_MAX);
+  procfs_pid_file(p, pid, "mounts");
+  FILE *f;
+  char ch;
+  f = fopen(p, "r");
+  if (f == NULL){
+    free(p);
+    return -1;
+  }
+  while (( ch = fgetc(f)) != EOF){
+    printf("boops\n");
+    sprintf(data,"%s%c", data, ch);
+  }
+  free(p);
+  return 1;
+}

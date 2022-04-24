@@ -27,5 +27,6 @@ extern int proc_dir_dent(pid_t pid);
 // proc_pid.c
 extern int proc_pid_comm(pid_t pid, char *data);
 extern int proc_pid_cmdline(pid_t pid, char *data);
+extern int proc_pid_mounts(pid_t pid, char *data);
 
 #endif  // end LIB_XPID_H
