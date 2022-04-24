@@ -55,6 +55,14 @@ type ProcessVisible struct {
 	// Failing chdir is a sign that the current user has invalid permission,
 	// or that something in the kernel is preventing the user from open the directory.
 	Chdir int
+
+	// After opendir we see if we can "list" files inside of the directory.
+	// This call happens at a higher level and will see if a directory
+	// within proc can be found by opening it's parent directory for listing.
+	//
+	// In this case /proc is typically opened, and then the pid directories are
+	// matched against!
+	Dent int
 }
 
 func ProcessPID(pid int64) *Process {

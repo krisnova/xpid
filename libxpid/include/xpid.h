@@ -17,7 +17,8 @@
 #ifndef LIB_XPID_H
 #define LIB_XPID_H
 
-extern int proc_dir_ls(int pid);
-extern int proc_dir_nav(int pid);
+extern int proc_opendir(int pid);
+extern int proc_chdir(int pid);
+extern int proc_dent(int pid);
 
 #endif  // end LIB_XPID_H

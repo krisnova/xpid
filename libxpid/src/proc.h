@@ -16,7 +16,7 @@
 #ifndef XPID_PROC_H
 #define XPID_PROC_H
 
-#define PROCFS_PATH_MAX  1024
+#define PROCFS_PATH_MAX  256
 #define PROCFS_DEFAULT   "/proc"
 
 void procfs(char *p);

@@ -21,12 +21,17 @@ package modproc
 // #include "xpid.h"
 import "C"
 
-func proc_dir_ls(pid int64) int {
-	x := C.proc_dir_ls(C.int(int(pid)))
+func proc_opendir(pid int64) int {
+	x := C.proc_opendir(C.int(int(pid)))
 	return int(x)
 }
 
-func proc_dir_nav(pid int64) int {
-	x := C.proc_dir_nav(C.int(int(pid)))
+func proc_chdir(pid int64) int {
+	x := C.proc_chdir(C.int(int(pid)))
+	return int(x)
+}
+
+func proc_dent(pid int64) int {
+	x := C.proc_dent(C.int(int(pid)))
 	return int(x)
 }

@@ -26,7 +26,7 @@ year        =  2022
 copyright   =  Copyright (c) $(year)
 cstyle      =  Google
 
-compile: libxpid ## Compile for the local architecture ⚙
+compile: ## Compile for the local architecture ⚙
 	@echo "Compiling..."
 	go build -ldflags "\
 	-X 'github.com/$(org)/$(target).Version=$(version)' \

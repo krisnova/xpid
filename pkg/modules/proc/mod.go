@@ -31,9 +31,10 @@ type ProcModule struct {
 var _ procx.ProcessExplorerResult = &ProcModuleResult{}
 
 type ProcModuleResult struct {
-	pid *api.Process
-	ls  int
-	nav int
+	pid     *api.Process
+	opendir int
+	chdir   int
+	dent    int
 }
 
 func NewProcModule() *ProcModule {
@@ -52,15 +53,17 @@ func (m *ProcModule) Meta() *module.Meta {
 
 func (m *ProcModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error) {
 	result := &ProcModuleResult{}
-	result.ls = proc_dir_ls(p.PID)
-	result.nav = proc_dir_nav(p.PID)
-	p.ProcessVisible.Chdir = result.nav
-	p.ProcessVisible.Opendir = result.ls
-	if p.ProcessVisible.Opendir != p.ProcessVisible.Chdir {
-		logrus.Infof("Hidden PID: %d\n", p.PID)
-		logrus.Infof("Chdir   : %d\n", p.ProcessVisible.Chdir)
-		logrus.Infof("Opendir : %d\n", p.ProcessVisible.Opendir)
-
+	result.opendir = proc_opendir(p.PID)
+	result.chdir = proc_chdir(p.PID)
+	result.dent = proc_dent(p.PID)
+	p.ProcessVisible.Chdir = result.chdir
+	p.ProcessVisible.Dent = result.dent
+	p.ProcessVisible.Opendir = result.opendir
+	if p.ProcessVisible.Opendir != p.ProcessVisible.Dent {
+		logrus.Infof("Hidden PID : %d\n", p.PID)
+		//logrus.Infof("Chdir      : %d\n", p.ProcessVisible.Chdir)
+		//logrus.Infof("Opendir    : %d\n", p.ProcessVisible.Opendir)
+		//logrus.Infof("Dent       : %d\n", p.ProcessVisible.Dent)
 	}
 	return result, nil
 }
