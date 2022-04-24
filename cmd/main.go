@@ -150,7 +150,7 @@ Investigate pid 123 using the "--proc" module only.
 		},
 		Action: func(c *cli.Context) error {
 			var pids []*v1.Process
-			query := c.Args().Get(1)
+			query := c.Args().Get(0)
 			if query == "" {
 				max := procx.MaxPid()
 				if max == -1 {
