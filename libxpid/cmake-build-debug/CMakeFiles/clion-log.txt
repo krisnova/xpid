@@ -1,4 +1,0 @@
-/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/opt/clion/bin/ninja/linux/ninja -G Ninja -S /home/nova/xpid/libxpid -B /home/nova/xpid/libxpid/cmake-build-debug
--- Configuring done
--- Generating done
--- Build files have been written to: /home/nova/xpid/libxpid/cmake-build-debug
