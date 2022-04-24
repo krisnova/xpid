@@ -6,23 +6,23 @@ It's like `nmap` but for pids. 🤓
 xpid [flags] -o [output]
 
 Investigate pid 123 and write the report to out.txt
- xpid 123 > out.txt
+   xpid 123 > out.txt
 
 Find all possible pids, and investigate each one (slow). The --all flag is default.
- xpid > out.txt 
- xpid --all > out.txt
+   xpid > out.txt 
+   xpid --all > out.txt
 
 Investigate all pids from 0 to 1000 and write the report to out.json
- xpid 0-1000 -o json > out.json
+   xpid 0-1000 -o json > out.json
 
 Find all eBPF pids at runtime (fast).
- xpid --ebpf
+   xpid --ebpf
 
 Find all proc pids at runtime (fast).
- xpid --proc
+   xpid --proc
 
 Investigate pid 123 using the "--proc" module only.
- xpid --proc 123 > out.txt
+   xpid --proc 123 > out.txt
 ```
 
 ## Go runtime
