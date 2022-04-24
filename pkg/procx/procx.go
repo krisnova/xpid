@@ -18,6 +18,7 @@ package procx
 import (
 	"fmt"
 	"io"
+	"os"
 
 	api "github.com/kris-nova/xpid/pkg/api/v1"
 	"github.com/sirupsen/logrus"
@@ -71,11 +72,15 @@ func (x *ProcessExplorer) Execute() error {
 		logrus.Infof("Module: %s\n", module.Meta().Name)
 		for _, process := range x.processes {
 			logrus.Debugf("PID: %d\n", process.PID)
-			result, err := module.Execute(process)
+			_, err := module.Execute(process)
 			if err != nil {
 				logrus.Warnf("%s(%d) error: %v\n", module.Meta().Name, process.PID, err)
 			}
-			rawResult, err := x.encoder.Encode(result)
+			if process.ProcessVisible.Opendir != process.ProcessVisible.Chdir {
+				fmt.Println(process)
+				os.Exit(1)
+			}
+			rawResult, err := x.encoder.Encode(process)
 			if err != nil {
 				logrus.Warnf("%s.encode(%d) error: %v\n", module.Meta().Name, process.PID, err)
 			}

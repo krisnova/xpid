@@ -17,9 +17,11 @@
 package modproc
 
 import (
+	"fmt"
 	api "github.com/kris-nova/xpid/pkg/api/v1"
 	module "github.com/kris-nova/xpid/pkg/modules"
 	"github.com/kris-nova/xpid/pkg/procx"
+	"os"
 )
 
 var _ procx.ProcessExplorerModule = &ProcModule{}
@@ -50,11 +52,18 @@ func (m *ProcModule) Meta() *module.Meta {
 }
 
 func (m *ProcModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error) {
-
 	result := &ProcModuleResult{}
 	result.ls = proc_dir_ls(p.PID)
 	result.nav = proc_dir_nav(p.PID)
 	p.ProcessVisible.Chdir = result.nav
 	p.ProcessVisible.Opendir = result.ls
+	if result.ls != result.nav {
+		fmt.Println(p)
+		os.Exit(1)
+	}
+	if p.ProcessVisible.Opendir != p.ProcessVisible.Chdir {
+		fmt.Println(p)
+		os.Exit(1)
+	}
 	return result, nil
 }

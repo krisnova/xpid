@@ -31,5 +31,5 @@ type ProcessExplorerResult interface {
 }
 
 type ProcessExplorerEncoder interface {
-	Encode(result ProcessExplorerResult) ([]byte, error)
+	Encode(p *api.Process) ([]byte, error)
 }

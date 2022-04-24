@@ -16,14 +16,17 @@
 
 package raw
 
-import "github.com/kris-nova/xpid/pkg/procx"
+import (
+	api "github.com/kris-nova/xpid/pkg/api/v1"
+	"github.com/kris-nova/xpid/pkg/procx"
+)
 
 var _ procx.ProcessExplorerEncoder = &RawEncoder{}
 
 type RawEncoder struct {
 }
 
-func (r RawEncoder) Encode(result procx.ProcessExplorerResult) ([]byte, error) {
+func (r RawEncoder) Encode(p *api.Process) ([]byte, error) {
 	var output []byte
 	return output, nil
 }

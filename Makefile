@@ -61,6 +61,7 @@ format: ## Format the code
 libxpid: ## Compile and install libxpid
 	@echo "Building libxpid..."
 	mkdir -p libxpid/build
+	cd libxpid/build && cmake ../
 	cd libxpid/build && make
 
 .PHONY: libxpid-clean

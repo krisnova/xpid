@@ -19,8 +19,8 @@ set -e
 cd libxpid/build
 make clean
 make
-sudo -E make install
+make install
 
 cd ../../
 make
-sudo -E make install
+make install

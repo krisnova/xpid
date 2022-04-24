@@ -36,7 +36,7 @@ int proc_dir_ls(int pid) {
   if (dent) {
     return 1;
   }
-  return 1;
+  return 0;
 }
 
 int proc_dir_nav(int pid) {
