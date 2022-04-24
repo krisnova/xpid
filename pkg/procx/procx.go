@@ -75,15 +75,6 @@ func (x *ProcessExplorer) Execute() error {
 			if err != nil {
 				logrus.Warnf("%s(%d) error: %v\n", module.Meta().Name, process.PID, err)
 			}
-
-			// -- Twitch
-
-			if process.ProcessVisible.Dent != process.ProcessVisible.Opendir {
-				logrus.Infof("Hidden: %s %d\n", process.Name, process.PID)
-			}
-
-			// -- Twitch
-
 			rawResult, err := x.encoder.Encode(process)
 			if err != nil {
 				logrus.Warnf("%s.encode(%d) error: %v\n", module.Meta().Name, process.PID, err)

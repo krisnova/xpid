@@ -21,9 +21,9 @@ import (
 	"os"
 	"time"
 
-	v1 "github.com/kris-nova/xpid/pkg/api/v1"
+	"github.com/kris-nova/xpid/pkg/encoders/json"
 
-	"github.com/kris-nova/xpid/pkg/encoders/raw"
+	v1 "github.com/kris-nova/xpid/pkg/api/v1"
 
 	modebpf "github.com/kris-nova/xpid/pkg/modules/ebpf"
 	modproc "github.com/kris-nova/xpid/pkg/modules/proc"
@@ -163,12 +163,12 @@ Investigate pid 123 using the "--proc" module only.
 			x := procx.NewProcessExplorer(pids)
 
 			// Encoder
-			encoder := raw.NewRawEncoder()
+			encoder := json.NewJSONEncoder()
 			x.SetEncoder(encoder) // Default raw encoder for now
 
 			// Modules
 			if cfg.All {
-				cfg.EBPF = true
+				//cfg.EBPF = true
 				cfg.Proc = true
 			}
 			if cfg.Proc {
