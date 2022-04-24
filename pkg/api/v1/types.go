@@ -44,6 +44,7 @@ type Process struct {
 	// The process unique ID.
 	PID int64
 }
+
 type ProcessVisible struct {
 
 	// Opendir is if the /proc/[pid] directory can be "opened" or "listed".
