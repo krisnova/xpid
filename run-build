@@ -16,11 +16,15 @@
 # =========================================================================== #
 set -e
 
+# TODO check if build exists for ./configure
+
+# Compile and install libxpid
 cd libxpid/build
 make clean
 make
 make install
 
+# Compile and install xpid
 cd ../../
 make
 make install

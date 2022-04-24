@@ -23,6 +23,7 @@
 #include "proc.h"
 #include "xpid.h"
 
+// Opendir
 int proc_dir_ls(int pid) {
   struct dirent *dent;
   char *p = malloc(PROCFS_PATH_MAX);
@@ -30,7 +31,7 @@ int proc_dir_ls(int pid) {
   DIR *dir = opendir(p);
   free(p);
   if (dir == NULL) {
-    return 0;
+    return 0; // x
   }
   dent = readdir(dir);
   closedir(dir);
@@ -40,6 +41,7 @@ int proc_dir_ls(int pid) {
   return 2;
 }
 
+// Chdir
 int proc_dir_nav(int pid) {
   int ret;
   char *p = malloc(PROCFS_PATH_MAX);
@@ -49,5 +51,5 @@ int proc_dir_nav(int pid) {
   if (ret == 0) {
     return 1;
   }
-  return 2;
+  return 0;
 }

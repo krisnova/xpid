@@ -41,6 +41,9 @@ set_target_properties(xpid PROPERTIES VERSION ${SO_VERSION})
 # This is where the magic symlinking in /usr/include comes to play
 set_target_properties(xpid PROPERTIES SOVERSION ${SO_VERSION})
 
+set_target_properties(xpid PROPERTIES SOVERSION ${SO_VERSION})
+
+
 #
 # Everything in /include will be what we expose as API
 #
