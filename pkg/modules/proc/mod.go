@@ -60,7 +60,7 @@ func (m *ProcModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error
 	result.Chdir = libxpid.ProcDirChdir(p.PID)
 	result.Dent = libxpid.ProcDirDent(p.PID)
 	result.Comm = libxpid.ProcPidComm(p.PID)
-	result.Cmdline = libxpid.ProcPidCmdline(p.PID)
+	result.Cmdline = libxpid.PrcocPidCmdline(p.PID)
 
 	// Higher level process (blind)
 	p.ProcessVisible.Chdir = result.Chdir

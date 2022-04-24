@@ -125,6 +125,7 @@ int proc_pid_cmdline(pid_t pid, char *data){
  * @return
  */
 int proc_pid_mounts(pid_t pid, char *data){
+  printf("pid=%d\n", pid);
   char *p = malloc(PROCFS_PATH_MAX);
   procfs_pid_file(p, pid, "mounts");
   FILE *f;
@@ -133,9 +134,8 @@ int proc_pid_mounts(pid_t pid, char *data){
   if (f == NULL){
     free(p);
     return -1;
-  }
+  } 
   while (( ch = fgetc(f)) != EOF){
-    printf("boops\n");
     sprintf(data,"%s%c", data, ch);
   }
   free(p);
