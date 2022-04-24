@@ -141,7 +141,6 @@ Investigate pid 123 using the "--proc" module only.
 		HideVersion:          true,
 		Before: func(c *cli.Context) error {
 			Preloader()
-			fmt.Fprintf(c.App.Writer, xpid.Banner())
 			return nil
 		},
 		After: func(c *cli.Context) error {
@@ -184,7 +183,7 @@ Investigate pid 123 using the "--proc" module only.
 			}
 
 			// Set encoder after filters are applied
-			x.SetEncoder(encoder) // Default raw encoder for now
+			x.SetEncoder(encoder)
 
 			// Modules
 			if cfg.All {
@@ -220,6 +219,6 @@ func Preloader() {
 	if cfg.Verbose {
 		logrus.SetLevel(logrus.DebugLevel)
 	} else {
-		logrus.SetLevel(logrus.InfoLevel)
+		logrus.SetLevel(logrus.WarnLevel)
 	}
 }

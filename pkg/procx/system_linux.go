@@ -27,7 +27,8 @@ import (
 )
 
 const (
-	DefaultProcLocation = "/proc"
+	DefaultProcLocation       = "/proc"
+	DefaultMaxPid       int64 = 65000
 )
 
 func ProcPath() string {
@@ -43,7 +44,7 @@ func MaxPid() int64 {
 	bytes, err := os.ReadFile(maxPidFile)
 	if err != nil {
 		logrus.Warnf("err reading %s: %v", maxPidFile, err)
-		return -1
+		return DefaultMaxPid
 	}
 	v := string(bytes)
 	v = strings.Replace(v, "\n", "", -1)

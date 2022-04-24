@@ -29,6 +29,19 @@ var _ procx.ProcessExplorerEncoder = &RawEncoder{}
 
 type RawEncoder struct {
 	filters []filter.ProcessFilter
+	format  Formatter
+}
+
+type Formatter func(p *api.Process) string
+
+var _ Formatter = DefaultFormatter
+
+func DefaultFormatter(p *api.Process) string {
+	return fmt.Sprintf("%s   [%d] (%s)\n", p.Name, p.PID, p.CommandLine)
+}
+
+func (r *RawEncoder) SetFormat(f Formatter) {
+	r.format = f
 }
 
 func (r *RawEncoder) Encode(p *api.Process) ([]byte, error) {
@@ -37,8 +50,7 @@ func (r *RawEncoder) Encode(p *api.Process) ([]byte, error) {
 			return []byte(""), fmt.Errorf("filtered")
 		}
 	}
-	str := fmt.Sprintf("name=%s pid=%d cli=%s\n", p.Name, p.PID, p.CommandLine)
-	return []byte(str), nil
+	return []byte(r.format(p)), nil
 }
 
 func (r *RawEncoder) AddFilter(f filter.ProcessFilter) {
@@ -46,5 +58,7 @@ func (r *RawEncoder) AddFilter(f filter.ProcessFilter) {
 }
 
 func NewRawEncoder() *RawEncoder {
-	return &RawEncoder{}
+	return &RawEncoder{
+		format: DefaultFormatter,
+	}
 }
