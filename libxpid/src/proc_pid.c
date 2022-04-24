@@ -80,7 +80,7 @@ int proc_pid_comm(pid_t pid, char *data){
  *
  * Think of this file as the command line that the process
  * wants you to see.
- * 
+ *
  * @param pid
  * @param data
  * @return
@@ -101,3 +101,4 @@ int proc_pid_cmdline(pid_t pid, char *data){
   free(p);
   return 1;
 }
+

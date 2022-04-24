@@ -26,6 +26,7 @@
 /**
  * proc_dir_opendir will attempt to opendir(/proc/[pid])
  * and report.
+ *
  * @param pid
  * @return
  */
@@ -51,6 +52,7 @@ int proc_dir_opendir(pid_t pid){
 /**
  * proc_dir_chdir will attempt to chdir(/proc/[pid])
  * and report.
+ *
  * @param pid
  * @return
  */
@@ -76,6 +78,7 @@ int proc_dir_chdir(pid_t pid) {
 /**
  * proc_dir_dent will attempt to opendir(/proc/[pid])
  * and list (dent) files and report.
+ *
  * @param pid
  * @return
  */
