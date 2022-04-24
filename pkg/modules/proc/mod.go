@@ -49,11 +49,12 @@ func (m *ProcModule) Meta() *module.Meta {
 	}
 }
 
-func (m *ProcModule) Execute(process *api.Process) (procx.ProcessExplorerResult, error) {
+func (m *ProcModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error) {
 
 	result := &ProcModuleResult{}
-	result.ls = proc_dir_ls(process.PID)
-	result.nav = proc_dir_nav(process.PID)
-
+	result.ls = proc_dir_ls(p.PID)
+	result.nav = proc_dir_nav(p.PID)
+	p.ProcessVisible.Chdir = result.nav
+	p.ProcessVisible.Opendir = result.ls
 	return result, nil
 }
