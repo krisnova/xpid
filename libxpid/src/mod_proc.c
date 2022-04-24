@@ -33,10 +33,11 @@ int proc_dir_ls(int pid) {
     return 0;
   }
   dent = readdir(dir);
+  closedir(dir);
   if (dent) {
     return 1;
   }
-  return 0;
+  return 2;
 }
 
 int proc_dir_nav(int pid) {
@@ -48,5 +49,5 @@ int proc_dir_nav(int pid) {
   if (ret == 0) {
     return 1;
   }
-  return 0;
+  return 2;
 }

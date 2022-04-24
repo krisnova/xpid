@@ -49,12 +49,12 @@ type ProcessVisible struct {
 	// Opendir is if the /proc/[pid] directory can be "opened" or "listed".
 	// Failing Opendir is a sign that the process may be attempted to being
 	// obfuscated to the user at runtime.
-	Opendir bool
+	Opendir int
 
 	// Chdir is if the /proc/[pid] directory can be "navigated" or "changed to".
 	// Failing chdir is a sign that the current user has invalid permission,
 	// or that something in the kernel is preventing the user from open the directory.
-	Chdir bool
+	Chdir int
 }
 
 func ProcessPID(pid int64) *Process {

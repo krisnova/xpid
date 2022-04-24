@@ -33,8 +33,8 @@ var _ procx.ProcessExplorerResult = &ProcModuleResult{}
 
 type ProcModuleResult struct {
 	pid *api.Process
-	ls  bool
-	nav bool
+	ls  int
+	nav int
 }
 
 func NewProcModule() *ProcModule {
