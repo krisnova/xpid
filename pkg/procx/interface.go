@@ -18,6 +18,7 @@ package procx
 
 import (
 	api "github.com/kris-nova/xpid/pkg/api/v1"
+	filter "github.com/kris-nova/xpid/pkg/filters"
 	module "github.com/kris-nova/xpid/pkg/modules"
 )
 
@@ -31,5 +32,6 @@ type ProcessExplorerResult interface {
 }
 
 type ProcessExplorerEncoder interface {
+	AddFilter(f filter.ProcessFilter)
 	Encode(p *api.Process) ([]byte, error)
 }

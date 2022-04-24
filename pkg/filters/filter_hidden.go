@@ -14,37 +14,19 @@
  *                                                                           *
 \*===========================================================================*/
 
-package Raw
+package filter
 
-import (
-	"fmt"
+import api "github.com/kris-nova/xpid/pkg/api/v1"
 
-	filter "github.com/kris-nova/xpid/pkg/filters"
+var _ ProcessFilter = RetainOnlyHidden
 
-	api "github.com/kris-nova/xpid/pkg/api/v1"
-	"github.com/kris-nova/xpid/pkg/procx"
-)
-
-var _ procx.ProcessExplorerEncoder = &RawEncoder{}
-
-type RawEncoder struct {
-	filters []filter.ProcessFilter
-}
-
-func (r *RawEncoder) Encode(p *api.Process) ([]byte, error) {
-	for _, f := range r.filters {
-		if !f(p) {
-			return []byte(""), fmt.Errorf("filtered")
-		}
+// RetainOnlyHidden will only keep "hidden" PIDs
+func RetainOnlyHidden(p *api.Process) bool {
+	if p.Opendir != p.Dent {
+		return true
 	}
-	str := fmt.Sprintf("name=%s pid=%d cli=%s\n", p.Name, p.PID, p.CommandLine)
-	return []byte(str), nil
-}
-
-func (r *RawEncoder) AddFilter(f filter.ProcessFilter) {
-	r.filters = append(r.filters, f)
-}
-
-func NewRawEncoder() *RawEncoder {
-	return &RawEncoder{}
+	if p.Chdir != p.Dent {
+		return true
+	}
+	return false
 }

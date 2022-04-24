@@ -21,6 +21,10 @@ import (
 	"os"
 	"time"
 
+	filter "github.com/kris-nova/xpid/pkg/filters"
+
+	Raw "github.com/kris-nova/xpid/pkg/encoders/raw"
+
 	"github.com/kris-nova/xpid/pkg/encoders/json"
 
 	v1 "github.com/kris-nova/xpid/pkg/api/v1"
@@ -38,11 +42,13 @@ import (
 var cfg = &AppOptions{}
 
 type AppOptions struct {
-	Verbose  bool
-	PIDQuery string // 0, 1, 5-10
+	Verbose bool
 
 	// Encoders
 	Output string
+
+	// Show hidden pids only
+	Hidden bool
 
 	// Modules
 	All  bool
@@ -73,14 +79,14 @@ func main() {
 		UsageText: `xpid [flags] -o [output]
 
 Investigate pid 123 and write the report to out.txt
-	xpid -p 123 > out.txt
+	xpid 123 > out.txt
 
 Find all possible pids, and investigate each one (slow). The --all flag is default.
 	xpid > out.txt 
 	xpid --all > out.txt
 
 Investigate all pids from 0 to 1000 and write the report to out.json
-	xpid -p 0-1000 -o json > out.json
+	xpid 0-1000 -o json > out.json
 
 Find all eBPF pids at runtime (fast).
 	xpid --ebpf
@@ -89,7 +95,7 @@ Find all proc pids at runtime (fast).
 	xpid --proc
 
 Investigate pid 123 using the "--proc" module only.
-	xpid --proc -p 123 > out.txt
+	xpid --proc 123 > out.txt
 
 `,
 		Commands: []*cli.Command{
@@ -102,11 +108,6 @@ Investigate pid 123 using the "--proc" module only.
 				Destination: &cfg.Verbose,
 			},
 			&cli.StringFlag{
-				Name:        "pid",
-				Aliases:     []string{"pids", "p"},
-				Destination: &cfg.PIDQuery,
-			},
-			&cli.StringFlag{
 				Name:        "output",
 				Aliases:     []string{"o", "out"},
 				Destination: &cfg.Output,
@@ -117,6 +118,12 @@ Investigate pid 123 using the "--proc" module only.
 				Aliases:     []string{"A"},
 				Destination: &cfg.All,
 				Value:       true,
+			},
+			&cli.BoolFlag{
+				Name:        "hidden",
+				Aliases:     []string{"x"},
+				Destination: &cfg.Hidden,
+				Value:       false,
 			},
 			&cli.BoolFlag{
 				Name:        "ebpf",
@@ -143,10 +150,8 @@ Investigate pid 123 using the "--proc" module only.
 		},
 		Action: func(c *cli.Context) error {
 			var pids []*v1.Process
-			var query string
-			if cfg.PIDQuery != "" {
-				query = cfg.PIDQuery
-			} else {
+			query := c.Args().Get(1)
+			if query == "" {
 				max := procx.MaxPid()
 				if max == -1 {
 					return fmt.Errorf("unable to read from /proc")
@@ -157,13 +162,28 @@ Investigate pid 123 using the "--proc" module only.
 			// Initialize the explorer based on flags
 			pids = procx.PIDQuery(query)
 			if pids == nil {
-				return fmt.Errorf("invalid pid query: %s", cfg.PIDQuery)
+				return fmt.Errorf("invalid pid query: %s", query)
 			}
 			logrus.Infof("Query : %s\n", query)
 			x := procx.NewProcessExplorer(pids)
 
 			// Encoder
-			encoder := json.NewJSONEncoder()
+			var encoder procx.ProcessExplorerEncoder
+			switch cfg.Output {
+			case "json":
+				encoder = json.NewJSONEncoder()
+				break
+			default:
+				encoder = Raw.NewRawEncoder()
+			}
+
+			// Filters
+			encoder.AddFilter(filter.RetainOnlyNamed)
+			if cfg.Hidden {
+				encoder.AddFilter(filter.RetainOnlyHidden)
+			}
+
+			// Set encoder after filters are applied
 			x.SetEncoder(encoder) // Default raw encoder for now
 
 			// Modules

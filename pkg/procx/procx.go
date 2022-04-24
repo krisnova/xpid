@@ -54,6 +54,7 @@ func (x *ProcessExplorer) SetWriter(w io.Writer) {
 // of modules and pids to execute.
 func (x *ProcessExplorer) Execute() error {
 
+	// Validation
 	if x.processes == nil {
 		return fmt.Errorf("missing pids in process explorer")
 	}
@@ -67,6 +68,7 @@ func (x *ProcessExplorer) Execute() error {
 		return fmt.Errorf("empty modules in process explorer")
 	}
 
+	// Main execution loops
 	for _, module := range x.modules {
 		logrus.Infof("Module: %s\n", module.Meta().Name)
 		for _, process := range x.processes {
@@ -77,7 +79,7 @@ func (x *ProcessExplorer) Execute() error {
 			}
 			rawResult, err := x.encoder.Encode(process)
 			if err != nil {
-				logrus.Warnf("%s.encode(%d) error: %v\n", module.Meta().Name, process.PID, err)
+				continue
 			}
 			_, err = x.writer.Write(rawResult)
 			if err != nil {
