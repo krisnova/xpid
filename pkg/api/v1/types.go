@@ -28,6 +28,7 @@ package v1
 
 type Process struct {
 	ProcessVisible
+	EBPFMeta
 
 	// Name (proc/[pid]/comm)
 	// This file exposes the process's comm value—that is, the
@@ -46,6 +47,12 @@ type Process struct {
 	//
 	// Will be set to true is eBPF is detected.
 	EBPF bool
+
+	// Thread is a bool that will be set if the process is part of
+	// a thread pool, or has a TGID that is unique from PID
+	//
+	// Reading from /proc/[pid]/status
+	Thread bool
 
 	// The process unique ID.
 	PID int64
@@ -72,8 +79,14 @@ type ProcessVisible struct {
 	Dent int
 }
 
+type EBPFMeta struct {
+	Progs []string
+	Maps  []string
+}
+
 func ProcessPID(pid int64) *Process {
 	return &Process{
+		EBPFMeta:       EBPFMeta{},
 		ProcessVisible: ProcessVisible{},
 		PID:            pid,
 	}

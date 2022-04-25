@@ -14,37 +14,17 @@
  *                                                                           *
 \*===========================================================================*/
 
-package libxpid
+package filter
 
-// #cgo LDFLAGS: -lxpid
-//
-// #include "xpid.h"
-// #include "stdlib.h"
-import "C"
+import (
+	api "github.com/kris-nova/xpid/pkg/api/v1"
+)
 
-//
-//func ProcPidComm(pid int64) string {
-//	var data string = ""
-//	cdata := C.CString(data)
-//	x := C.proc_pid_comm(C.int(int(pid)), cdata)
-//	defer C.free(unsafe.Pointer(cdata))
-//	xint := int(x)
-//	if xint == 1 {
-//		retstr := strings.ReplaceAll(C.GoString(cdata), "\n", "")
-//		return retstr
-//	}
-//	return ""
-//}
-//
-//func ProcPidCmdline(pid int64) string {
-//	var data string
-//	cdata := C.CString(data)
-//	defer C.free(unsafe.Pointer(cdata))
-//	x := C.proc_pid_cmdline(C.int(int(pid)), cdata)
-//	xint := int(x)
-//	if xint == 1 {
-//		retstr := strings.ReplaceAll(C.GoString(cdata), "\n", "")
-//		return retstr
-//	}
-//	return ""
-//}
+var _ ProcessFilter = RejectThreads
+
+func RejectThreads(p *api.Process) bool {
+	if p.Thread {
+		return false
+	}
+	return true
+}

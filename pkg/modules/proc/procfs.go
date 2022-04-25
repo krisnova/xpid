@@ -13,12 +13,14 @@
 *
 *****************************************************************************/
 
-package proc
+package modproc
 
 import (
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 )
 
 const (
@@ -45,7 +47,32 @@ func (p *ProcFileSystem) ContentsPID(pid int64, file string) (string, error) {
 	return p.Contents(file)
 }
 
+func (p *ProcFileSystem) Dir(dir string) ([]fs.FileInfo, error) {
+	return ioutil.ReadDir(filepath.Join(p.rootPath, dir))
+}
+
+func (p *ProcFileSystem) DirPID(pid int64, dir string) ([]fs.FileInfo, error) {
+	dir = fmt.Sprintf("%d/%s", pid, dir)
+	return p.Dir(dir)
+}
+
 func Proc() string {
 	// TODO Look up procfs!
 	return DefaultProcRoot
+}
+
+func FileKeyValue(content, key string) string {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		spl := strings.Split(line, ":")
+		if len(spl) != 2 {
+			continue
+		}
+		k := strings.TrimSpace(spl[0])
+		v := strings.TrimSpace(spl[1])
+		if key == k {
+			return v
+		}
+	}
+	return ""
 }

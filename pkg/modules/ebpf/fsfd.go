@@ -18,83 +18,89 @@ package modebpf
 
 import (
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
-
-	modproc "github.com/kris-nova/xpid/pkg/modules/proc"
-
-	api "github.com/kris-nova/xpid/pkg/api/v1"
-	module "github.com/kris-nova/xpid/pkg/modules"
-	"github.com/kris-nova/xpid/pkg/procx"
+	"strings"
 )
 
-var _ procx.ProcessExplorerModule = &EBPFModule{}
+// EBPFFileSystemData is structured data from /sys/fs/bpf/*
+type EBPFFileSystemData struct {
+	Maps  map[string]*Map
+	Progs map[string]*Prog
+}
+
+type Map struct {
+	ID         string
+	Name       string
+	MaxEntries string
+}
+type Prog struct {
+	ID       string
+	Name     string
+	Attached string
+}
 
 const (
-	EBPFFullMount  string = "bpf /sys/fs/bpf bpf"
-	EBPFSYSFSMount string = "/sys/fs/bpf"
+	DefaultEBPFFileSystemDataDir = "/sys/fs/bpf"
 )
 
-type EBPFModule struct {
-}
-
-func NewEBPFModule() *EBPFModule {
-	return &EBPFModule{}
-}
-
-type EBPFModuleResult struct {
-	pid    *api.Process
-	Mounts string
-}
-
-func (m *EBPFModule) Meta() *module.Meta {
-	return &module.Meta{
-		Name:        "eBPF module",
-		Description: "Search proc(5) filesystems for eBPF programs. Will do an in depth scan and search for obfuscated directories.",
-		Authors: []string{
-			"Kris Nóva <kris@nivenly.com>",
-		},
+func NewEBPFFileSystemData() (*EBPFFileSystemData, error) {
+	e := &EBPFFileSystemData{
+		Progs: make(map[string]*Prog),
+		Maps:  make(map[string]*Map),
 	}
-}
-
-func (m *EBPFModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error) {
-	// Module specific (correlated)
-	result := &EBPFModuleResult{}
-
-	procfs := modproc.NewProcFileSystem(modproc.Proc())
-	mounts, _ := procfs.ContentsPID(p.PID, "mounts")
-	result.Mounts = mounts
-
-	e, err := NewEBPFFileSystemData()
+	mapbytes, err := ioutil.ReadFile(filepath.Join(DefaultEBPFFileSystemDataDir, "maps.debug"))
 	if err != nil {
-		return nil, fmt.Errorf("unable to read /sys/fs/bpf: %v", err)
+		return nil, fmt.Errorf("map read: %v", err)
 	}
-
-	// Compare with file descriptors in /proc
-	fds, err := procfs.DirPID(p.PID, "fdinfo")
-
-	if err != nil {
-		return nil, fmt.Errorf("unable to read /proc/%d/fdinfo: %v", p.PID, err)
-	}
-	for _, fd := range fds {
-		fddata, err := procfs.ContentsPID(p.PID, filepath.Join("fdinfo", fd.Name()))
-		if err != nil {
+	mapstr := string(mapbytes)
+	lines := strings.Split(mapstr, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
 			continue
 		}
-		ebpfProgID := modproc.FileKeyValue(fddata, "prog_id")
-		if ebpfProgID == "" {
+		spl := strings.Split(line, " ")
+		if len(spl) < 2 {
 			continue
 		}
-		for id, mp := range e.Progs {
-			if id == "" {
-				continue
-			}
-			if id == ebpfProgID {
-				// We have mapped an eBPF program to a PID!
-				p.EBPF = true
-				p.EBPFMeta.Progs = append(p.EBPFMeta.Progs, mp.Name)
-			}
+		id := strings.TrimSpace(spl[0])
+		name := strings.TrimSpace(spl[1])
+		if id == "id" {
+			continue
 		}
+		mp := &Map{
+			ID:   id,
+			Name: name,
+		}
+		e.Maps[id] = mp
 	}
 
-	return result, nil
+	progbytes, err := ioutil.ReadFile(filepath.Join(DefaultEBPFFileSystemDataDir, "progs.debug"))
+	if err != nil {
+		return nil, fmt.Errorf("prog read: %v", err)
+	}
+	progstr := string(progbytes)
+	lines = strings.Split(progstr, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		spl := strings.Split(line, " ")
+		if len(spl) < 2 {
+			continue
+		}
+		id := strings.TrimSpace(spl[0])
+		name := strings.TrimSpace(spl[1])
+		if id == "id" {
+			continue
+		}
+		p := &Prog{
+			ID:   id,
+			Name: name,
+		}
+		e.Progs[id] = p
+	}
+	return e, nil
 }

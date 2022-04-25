@@ -17,6 +17,8 @@
 package modproc
 
 import (
+	"strings"
+
 	api "github.com/kris-nova/xpid/pkg/api/v1"
 	"github.com/kris-nova/xpid/pkg/libxpid"
 	module "github.com/kris-nova/xpid/pkg/modules"
@@ -37,6 +39,7 @@ type ProcModuleResult struct {
 	Dent    int
 	Comm    string
 	Cmdline string
+	Status  string
 }
 
 func NewProcModule() *ProcModule {
@@ -59,8 +62,14 @@ func (m *ProcModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error
 	result.Opendir = libxpid.ProcDirOpendir(p.PID)
 	result.Chdir = libxpid.ProcDirChdir(p.PID)
 	result.Dent = libxpid.ProcDirDent(p.PID)
-	result.Comm = libxpid.ProcPidComm(p.PID)
-	result.Cmdline = libxpid.ProcPidCmdline(p.PID)
+
+	procfs := NewProcFileSystem(Proc())
+	comm, _ := procfs.ContentsPID(p.PID, "comm")
+	result.Comm = strings.TrimSpace(comm)
+	cmdline, _ := procfs.ContentsPID(p.PID, "cmdline")
+	result.Cmdline = strings.TrimSpace(cmdline)
+	status, _ := procfs.ContentsPID(p.PID, "status")
+	result.Status = strings.TrimSpace(status)
 
 	// Higher level process (blind)
 	p.ProcessVisible.Chdir = result.Chdir
@@ -68,5 +77,15 @@ func (m *ProcModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error
 	p.ProcessVisible.Opendir = result.Opendir
 	p.CommandLine = result.Cmdline
 	p.Name = result.Comm
+	p.Thread = StatusFileIsThread(result.Status)
 	return result, nil
+}
+
+func StatusFileIsThread(status string) bool {
+	tgid := FileKeyValue(status, "Tgid")
+	pid := FileKeyValue(status, "Pid")
+	if tgid != "" && pid != "" {
+		return tgid == pid
+	}
+	return false
 }

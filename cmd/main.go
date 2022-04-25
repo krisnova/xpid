@@ -48,9 +48,11 @@ type AppOptions struct {
 	// Encoders
 	Output string
 
-	Hidden bool
-	Color  bool
-	Probe  bool
+	Hidden  bool
+	Threads bool
+
+	Color bool
+	Probe bool
 
 	// Modules
 	All  bool
@@ -132,6 +134,12 @@ Find all eBPF pids at runtime (fast).
 				Value:       false,
 			},
 			&cli.BoolFlag{
+				Name:        "threads",
+				Aliases:     []string{"t", "thread"},
+				Destination: &cfg.Threads,
+				Value:       false,
+			},
+			&cli.BoolFlag{
 				Name:        "proc",
 				Aliases:     []string{"P"},
 				Destination: &cfg.Proc,
@@ -194,6 +202,9 @@ Find all eBPF pids at runtime (fast).
 			if cfg.Hidden {
 				encoder.AddFilter(filter.RetainOnlyHidden)
 			}
+			if !cfg.Threads {
+				encoder.AddFilter(filter.RejectThreads)
+			}
 
 			// Set encoder after filters are applied
 
@@ -202,7 +213,7 @@ Find all eBPF pids at runtime (fast).
 			}
 			if cfg.All {
 				cfg.Proc = true
-				cfg.Probe = true
+				//cfg.Probe = true
 			}
 			if cfg.Proc {
 				pmod := modproc.NewProcModule()
