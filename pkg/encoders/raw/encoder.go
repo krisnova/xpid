@@ -46,7 +46,8 @@ func (r *RawEncoder) SetFormat(f Formatter) {
 
 func (r *RawEncoder) Encode(p *api.Process) ([]byte, error) {
 	for _, f := range r.filters {
-		if !f(p) {
+		x := f(p)
+		if !x {
 			return []byte(""), fmt.Errorf("filtered")
 		}
 	}

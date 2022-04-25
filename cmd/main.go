@@ -196,7 +196,6 @@ Find all eBPF pids at runtime (fast).
 			}
 
 			// Set encoder after filters are applied
-			x.SetEncoder(encoder)
 
 			if !cfg.Probe && !cfg.Proc {
 				cfg.All = true
@@ -210,13 +209,16 @@ Find all eBPF pids at runtime (fast).
 				x.AddModule(pmod)
 			}
 			if cfg.Probe {
+				// Also proc for names and meta
+				pmod := modproc.NewProcModule()
+				x.AddModule(pmod)
 				bpfmod := modebpf.NewEBPFModule()
 				x.AddModule(bpfmod)
 				encoder.AddFilter(filter.RetainOnlyEBPF)
 			}
-			x.SetWriter(os.Stdout)
-
 			// Execute
+			x.SetEncoder(encoder)
+			x.SetWriter(os.Stdout)
 			return x.Execute()
 		},
 	}

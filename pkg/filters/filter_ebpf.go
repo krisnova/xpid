@@ -16,7 +16,9 @@
 
 package filter
 
-import api "github.com/kris-nova/xpid/pkg/api/v1"
+import (
+	api "github.com/kris-nova/xpid/pkg/api/v1"
+)
 
 var _ ProcessFilter = RetainOnlyEBPF
 
