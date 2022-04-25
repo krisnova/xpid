@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "proc.h"
 
 /**
@@ -56,6 +57,7 @@ int proc_pid_comm(pid_t pid, char *data){
   while (( ch = fgetc(f)) != EOF){
     sprintf(data,"%s%c", data, ch);
   }
+  fclose(f);
   free(p);
   return 1;
 }
@@ -99,6 +101,7 @@ int proc_pid_cmdline(pid_t pid, char *data){
   while (( ch = fgetc(f)) != EOF){
     sprintf(data,"%s%c", data, ch);
   }
+  fclose(f);
   free(p);
   return 1;
 }
@@ -131,13 +134,16 @@ int proc_pid_mounts(pid_t pid, char *data){
   FILE *f;
   char ch;
   f = fopen(p, "r");
-  if (f == NULL){
+  if (f == NULL) {
     free(p);
     return -1;
-  } 
-  while (( ch = fgetc(f)) != EOF){
-    sprintf(data,"%s%c", data, ch);
   }
+  char *databuf = malloc(1024 * 1024);
+  while (( ch = fgetc(f)) != EOF){
+    sprintf(databuf,"%s%c", databuf, ch);
+  }
+  strcpy(data, databuf);
+  //fclose(f);
   free(p);
   return 1;
 }
