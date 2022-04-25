@@ -1,6 +1,11 @@
-# Xpid
+# xpid - It's `nmap` but for pids. 🤓
 
-It's like `nmap` but for pids. 🤓
+`xpid` gives a user the ability to "probe" for process details on a Linux system.
+
+For example a sleeping thread will have a directory `/proc/[pid]` directoy that can be navigated to, but not listed.
+
+`xpid` will check many different places in the kernel for details about a pid. 
+By searching subsets of possible pids `xpid` will be able to check for pid details in many places in the kernel.
 
 ```bash
 xpid [flags] -o [output]
@@ -24,6 +29,12 @@ Find all proc pids at runtime (fast).
 Investigate pid 123 using the "--proc" module only.
    xpid --proc 123 > out.txt
 ```
+
+## Obfuscated PIDs
+
+Because of the flexibility with kernel modules, and eBPF in the kernel it can be possible to prevent the `proc(5)` filesystem from listing pid details in traditional ways.
+
+`xpid` uses other tactics to search for pids in the same way `nmap` will use multiple tactics to probe a target.
 
 ## Go runtime
 
