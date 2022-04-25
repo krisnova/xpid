@@ -17,9 +17,10 @@
 package modebpf
 
 import (
+	"fmt"
 	"strings"
 
-	"github.com/kris-nova/xpid/pkg/libxpid"
+	"github.com/kris-nova/xpid/pkg/proc"
 
 	api "github.com/kris-nova/xpid/pkg/api/v1"
 	module "github.com/kris-nova/xpid/pkg/modules"
@@ -29,8 +30,8 @@ import (
 var _ procx.ProcessExplorerModule = &EBPFModule{}
 
 const (
-	EBPF_FullMount   string = "bpf /sys/fs/bpf bpf"
-	EBPF_SYS_FSMount string = "/sys/fs/bpf"
+	EBPFFullMount  string = "bpf /sys/fs/bpf bpf"
+	EBPFSYSFSMount string = "/sys/fs/bpf"
 )
 
 type EBPFModule struct {
@@ -58,13 +59,19 @@ func (m *EBPFModule) Meta() *module.Meta {
 func (m *EBPFModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error) {
 	// Module specific (correlated)
 	result := &EBPFModuleResult{}
-	result.Mounts = libxpid.ProcPidMounts(p.PID)
+
+	procfs := proc.NewProcFileSystem(proc.Proc())
+	data, err := procfs.ContentsPID(p.PID, "mounts")
+	if err != nil {
+		return nil, fmt.Errorf("unable to read /proc/%d/mounts: %v", p.PID, err)
+	}
+	result.Mounts = data
 
 	// Higher level process (blind)
-	if strings.Contains(result.Mounts, EBPF_FullMount) {
+	if strings.Contains(result.Mounts, EBPFFullMount) {
 		p.EBPF = true
 	}
-	if strings.Contains(result.Mounts, EBPF_SYS_FSMount) {
+	if strings.Contains(result.Mounts, EBPFSYSFSMount) {
 		p.EBPF = true
 	}
 

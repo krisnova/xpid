@@ -22,9 +22,8 @@ package libxpid
 // #include "stdlib.h"
 import "C"
 import (
-	"fmt"
-	"io/ioutil"
 	"strings"
+	"unsafe"
 )
 
 func ProcPidComm(pid int64) string {
@@ -34,10 +33,10 @@ func ProcPidComm(pid int64) string {
 	xint := int(x)
 	if xint == 1 {
 		retstr := strings.ReplaceAll(C.GoString(cdata), "\n", "")
-		//C.free(unsafe.Pointer(cdata))
+		C.free(unsafe.Pointer(cdata))
 		return retstr
 	}
-	//C.free(unsafe.Pointer(cdata))
+	C.free(unsafe.Pointer(cdata))
 	return ""
 }
 
@@ -48,17 +47,9 @@ func ProcPidCmdline(pid int64) string {
 	xint := int(x)
 	if xint == 1 {
 		retstr := strings.ReplaceAll(C.GoString(cdata), "\n", "")
-		//C.free(unsafe.Pointer(cdata))
+		C.free(unsafe.Pointer(cdata))
 		return retstr
 	}
-	//C.free(unsafe.Pointer(cdata))
+	C.free(unsafe.Pointer(cdata))
 	return ""
-}
-
-func ProcPidMounts(pid int64) string {
-	bytes, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/mounts", pid))
-	if err != nil {
-		return ""
-	}
-	return string(bytes)
 }
