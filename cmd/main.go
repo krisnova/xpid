@@ -21,6 +21,8 @@ import (
 	"os"
 	"time"
 
+	modcontainer "github.com/kris-nova/xpid/pkg/modules/container"
+
 	modebpf "github.com/kris-nova/xpid/pkg/modules/ebpf"
 
 	filter "github.com/kris-nova/xpid/pkg/filters"
@@ -57,6 +59,9 @@ type AppOptions struct {
 	// Modules
 	All  bool
 	Proc bool
+
+	// Containers
+	Containers bool
 }
 
 func main() {
@@ -117,7 +122,7 @@ Find all eBPF pids at runtime (fast).
 			},
 			&cli.BoolFlag{
 				Name:        "color",
-				Aliases:     []string{"c"},
+				Aliases:     []string{"C"},
 				Destination: &cfg.Color,
 				Value:       false,
 			},
@@ -137,12 +142,18 @@ Find all eBPF pids at runtime (fast).
 				Name:        "threads",
 				Aliases:     []string{"t", "thread"},
 				Destination: &cfg.Threads,
-				Value:       false,
+				Value:       true,
 			},
 			&cli.BoolFlag{
 				Name:        "proc",
 				Aliases:     []string{"P"},
 				Destination: &cfg.Proc,
+				Value:       false,
+			},
+			&cli.BoolFlag{
+				Name:        "container",
+				Aliases:     []string{"c", "containers"},
+				Destination: &cfg.Containers,
 				Value:       false,
 			},
 		},
@@ -204,6 +215,10 @@ Find all eBPF pids at runtime (fast).
 			}
 			if !cfg.Threads {
 				encoder.AddFilter(filter.RejectThreads)
+			}
+			if cfg.Containers {
+				x.AddModule(modcontainer.NewContainerModule())
+				encoder.AddFilter(filter.RetainOnlyContainers)
 			}
 
 			// Set encoder after filters are applied

@@ -48,6 +48,12 @@ type Process struct {
 	// Will be set to true is eBPF is detected.
 	EBPF bool
 
+	// Container is an xpid specific field that attempts to detect
+	// if a specific PID is running as a container
+	//
+	// Will be set to true if we suspect this is a container PID
+	Container bool
+
 	// Thread is a bool that will be set if the process is part of
 	// a thread pool, or has a TGID that is unique from PID
 	//
