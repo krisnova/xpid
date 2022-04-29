@@ -17,9 +17,9 @@ package procx
 
 import (
 	"fmt"
-	"io"
-
 	api "github.com/kris-nova/xpid/pkg/api/v1"
+	"io"
+	"sync"
 )
 
 type ProcessExplorer struct {
@@ -27,11 +27,14 @@ type ProcessExplorer struct {
 	modules   []ProcessExplorerModule
 	encoder   ProcessExplorerEncoder
 	writer    io.Writer
+	fast      bool
+	waitGroup *sync.WaitGroup
 }
 
 func NewProcessExplorer(processes []*api.Process) *ProcessExplorer {
 	return &ProcessExplorer{
 		processes: processes,
+		waitGroup: &sync.WaitGroup{},
 	}
 }
 
@@ -45,6 +48,10 @@ func (x *ProcessExplorer) SetEncoder(e ProcessExplorerEncoder) {
 
 func (x *ProcessExplorer) SetWriter(w io.Writer) {
 	x.writer = w
+}
+
+func (x *ProcessExplorer) SetFast(f bool) {
+	x.fast = f
 }
 
 // Execute will run the process explorer.
@@ -70,19 +77,24 @@ func (x *ProcessExplorer) Execute() error {
 	// Main execution loops
 	for _, process := range x.processes {
 		for _, module := range x.modules {
-			_, err := module.Execute(process)
-			if err != nil {
-				continue
+			x.waitGroup.Add(1)
+			if x.fast {
+				go x.walk(process, module)
+			} else {
+				x.walk(process, module)
 			}
 		}
-		rawResult, err := x.encoder.Encode(process)
-		if err != nil {
-			continue
-		}
-		_, err = x.writer.Write(rawResult)
-		if err != nil {
-			continue
-		}
 	}
+	x.waitGroup.Wait()
 	return nil
+}
+
+// Walk ignores errors and will walk a process and a module
+//
+// Walk may be ran concurrently if needed
+func (x *ProcessExplorer) walk(p *api.Process, module ProcessExplorerModule) {
+	module.Execute(p)
+	r, _ := x.encoder.Encode(p)
+	x.writer.Write(r)
+	x.waitGroup.Done()
 }

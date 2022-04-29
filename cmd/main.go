@@ -46,6 +46,7 @@ var cfg = &AppOptions{}
 
 type AppOptions struct {
 	Verbose bool
+	Fast    bool
 
 	// Encoders
 	Output string
@@ -127,6 +128,12 @@ Find all eBPF pids at runtime (fast).
 				Value:       false,
 			},
 			&cli.BoolFlag{
+				Name:        "fast",
+				Aliases:     []string{"f"},
+				Destination: &cfg.Fast,
+				Value:       true,
+			},
+			&cli.BoolFlag{
 				Name:        "probe",
 				Aliases:     []string{"bpf", "ebpf", "p"},
 				Destination: &cfg.Probe,
@@ -186,6 +193,9 @@ Find all eBPF pids at runtime (fast).
 			}
 			logrus.Infof("Query : %s\n", query)
 			x := procx.NewProcessExplorer(pids)
+
+			// Fast
+			x.SetFast(cfg.Fast)
 
 			// Encoder
 			var encoder procx.ProcessExplorerEncoder
