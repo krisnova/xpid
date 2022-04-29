@@ -59,7 +59,7 @@ format: ## Format the code
 
 
 .PHONY: libxpid
-libxpid: ## Compile and install libxpid
+libxpid: libxpid-clean ## Compile and install libxpid
 	@echo "Building libxpid..."
 	mkdir -p libxpid/build
 	cd libxpid/build && cmake ../
@@ -73,11 +73,11 @@ aur: ## Publish to AUR using my SSH key
 .PHONY: libxpid-clean
 libxpid-clean: ## Clean libxpid
 	@echo "Clean libxpid..."
-	cd libxpid/build && make clean
+	rm -rf libxpid/build/*
 
 .PHONY: libxpid-install
 libxpid-install: ## Install libxpid
-	@echo "Install libxpid..."
+	@echo "Installing libxpid..."
 	cd libxpid/build && make install
 
 .PHONY: release
