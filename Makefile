@@ -16,7 +16,7 @@
 
 all: compile
 
-version     =  1.0.4
+version     =  1.0.5
 target      =  xpid
 org         =  kris-nova
 authorname  =  Kris Nóva
@@ -40,7 +40,6 @@ compile: ## Compile for the local architecture ⚙
 install: ## Install the program to /usr/bin 🎉
 	@echo "Installing..."
 	sudo cp $(target) /usr/bin/$(target)
-	cd libxpid/build && make install
 
 test: clean compile install ## 🤓 Run go tests
 	@echo "Testing..."
