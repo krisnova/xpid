@@ -9,7 +9,7 @@ For example a sleeping thread will have a directory `/proc/[pid]` directoy that 
 `xpid` will check many different places in the kernel for details about a pid. 
 By searching subsets of possible pids `xpid` will be able to check for pid details in many places in the kernel.
 
-```bash
+```
 xpid [flags] -o [output] <query>
    
 Investigate pid 123 and write the report to out.txt
