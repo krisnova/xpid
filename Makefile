@@ -65,6 +65,11 @@ libxpid: ## Compile and install libxpid
 	cd libxpid/build && cmake ../
 	cd libxpid/build && make
 
+.PHONY: aur
+aur: ## Publish to AUR using my SSH key
+	@echo "Publishing to AUR using Kris Nóva's key (if exists)..."
+	cd aur && ./publish
+
 .PHONY: libxpid-clean
 libxpid-clean: ## Clean libxpid
 	@echo "Clean libxpid..."
