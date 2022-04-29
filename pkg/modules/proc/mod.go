@@ -85,7 +85,9 @@ func StatusFileIsThread(status string) bool {
 	tgid := FileKeyValue(status, "Tgid")
 	pid := FileKeyValue(status, "Pid")
 	if tgid != "" && pid != "" {
-		return tgid == pid
+		if tgid != pid {
+			return true
+		}
 	}
 	return false
 }

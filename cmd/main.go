@@ -142,7 +142,7 @@ Find all eBPF pids at runtime (fast).
 				Name:        "threads",
 				Aliases:     []string{"t", "thread"},
 				Destination: &cfg.Threads,
-				Value:       true,
+				Value:       false,
 			},
 			&cli.BoolFlag{
 				Name:        "proc",
