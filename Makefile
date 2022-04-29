@@ -76,9 +76,9 @@ libxpid-clean: ## Clean libxpid
 	cd libxpid/build && make clean
 
 .PHONY: libxpid-install
-libxpid-install: ## Clean libxpid
-	@echo "Clean libxpid..."
-	cd libxpid/build && make clean
+libxpid-install: ## Install libxpid
+	@echo "Install libxpid..."
+	cd libxpid/build && make install
 
 .PHONY: release
 release: ## Make the binaries for a GitHub release 📦
