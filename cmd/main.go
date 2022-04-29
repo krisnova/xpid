@@ -142,7 +142,7 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 			},
 			&cli.BoolFlag{
 				Name:        "probe",
-				Aliases:     []string{"bpf", "ebpf", "p"},
+				Aliases:     []string{"bpf", "ebpf", "b"},
 				Destination: &cfg.Probe,
 				Value:       false,
 			},
