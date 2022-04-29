@@ -17,9 +17,10 @@ package procx
 
 import (
 	"fmt"
-	api "github.com/kris-nova/xpid/pkg/api/v1"
 	"io"
 	"sync"
+
+	api "github.com/kris-nova/xpid/pkg/api/v1"
 )
 
 type ProcessExplorer struct {

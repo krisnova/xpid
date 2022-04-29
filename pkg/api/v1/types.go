@@ -26,9 +26,19 @@ package v1
 // comm             gid_map             mounts      personality    stack         uid_map
 // coredump_filter  io                  mountstats  projid_map     stat          wchan
 
+// Process is a Linux process abstraction.
+// By design this will have fields that are available in /proc and much more.
+//
+// Some of these fields will be calculated at runtime based on certain situations
+// in the system.
+//
+// This data structure and the logic that populates it will be a substantial part
+// of the xpid library, and the xpid API.
 type Process struct {
 	ProcessVisible
 	EBPFMeta
+	User
+	Group
 
 	// Name (proc/[pid]/comm)
 	// This file exposes the process's comm value—that is, the
@@ -64,6 +74,17 @@ type Process struct {
 	PID int64
 }
 
+// User is a user from the filesystem
+type User struct {
+	ID   int
+	Name string
+}
+
+type Group struct {
+	ID   int
+	Name string
+}
+
 type ProcessVisible struct {
 
 	// Opendir is if the /proc/[pid] directory can be "opened" or "listed".
@@ -94,6 +115,8 @@ func ProcessPID(pid int64) *Process {
 	return &Process{
 		EBPFMeta:       EBPFMeta{},
 		ProcessVisible: ProcessVisible{},
+		User:           User{},
+		Group:          Group{},
 		PID:            pid,
 	}
 }

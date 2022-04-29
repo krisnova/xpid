@@ -17,11 +17,6 @@
 package modcontainer
 
 import (
-	"fmt"
-	"strings"
-
-	modproc "github.com/kris-nova/xpid/pkg/modules/proc"
-
 	api "github.com/kris-nova/xpid/pkg/api/v1"
 	module "github.com/kris-nova/xpid/pkg/modules"
 	"github.com/kris-nova/xpid/pkg/procx"
@@ -60,20 +55,14 @@ func (m *ContainerModule) Execute(p *api.Process) (procx.ProcessExplorerResult, 
 	// Module specific (correlated)
 	result := &ContainerModuleResult{}
 
-	procfs := modproc.NewProcFileSystem(modproc.Proc())
-	stack, err := procfs.ContentsPID(p.PID, "stack")
-	if err != nil {
-		return nil, fmt.Errorf("unable to read stack")
-	}
+	//procfs := modproc.NewProcFileSystem(modproc.Proc())
+	//stack, err := procfs.ContentsPID(p.PID, "stack")
+	//if err != nil {
+	//	return nil, fmt.Errorf("unable to read stack")
+	//}
 
-	// Todo validate that SIGSuspend is a good indicator for a container.
-	// This is my personal research here, however it seems to be valid!
-	// We can also Marshal sigsystem onto the syscall table and consider checking
-	// the actual stack
-	if strings.Contains(stack, ContainerValueSigSuspendX86) {
-		p.Container = true
-	}
-
+	//
+	// TODO Parse proc/stack for container detail here!
 	//
 
 	return result, nil

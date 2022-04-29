@@ -54,7 +54,6 @@ type AppOptions struct {
 	Hidden  bool
 	Threads bool
 
-	Color bool
 	Probe bool
 
 	// Modules
@@ -62,7 +61,7 @@ type AppOptions struct {
 	Proc bool
 
 	// Containers
-	Containers bool
+	Container bool
 }
 
 func main() {
@@ -122,12 +121,6 @@ Find all eBPF pids at runtime (fast).
 				Value:       false,
 			},
 			&cli.BoolFlag{
-				Name:        "color",
-				Aliases:     []string{"C"},
-				Destination: &cfg.Color,
-				Value:       false,
-			},
-			&cli.BoolFlag{
 				Name:        "fast",
 				Aliases:     []string{"f"},
 				Destination: &cfg.Fast,
@@ -160,7 +153,7 @@ Find all eBPF pids at runtime (fast).
 			&cli.BoolFlag{
 				Name:        "container",
 				Aliases:     []string{"c", "containers"},
-				Destination: &cfg.Containers,
+				Destination: &cfg.Container,
 				Value:       false,
 			},
 		},
@@ -206,13 +199,8 @@ Find all eBPF pids at runtime (fast).
 			case "raw":
 				encoder = Raw.NewRawEncoder()
 				break
+			case "color":
 			default:
-				rawcolor := Raw.NewRawEncoder()
-				rawcolor.SetFormat(Raw.ColorFormatter)
-				encoder = rawcolor
-			}
-
-			if cfg.Color {
 				rawcolor := Raw.NewRawEncoder()
 				rawcolor.SetFormat(Raw.ColorFormatter)
 				encoder = rawcolor
@@ -226,7 +214,7 @@ Find all eBPF pids at runtime (fast).
 			if !cfg.Threads {
 				encoder.AddFilter(filter.RejectThreads)
 			}
-			if cfg.Containers {
+			if cfg.Container {
 				x.AddModule(modcontainer.NewContainerModule())
 				encoder.AddFilter(filter.RetainOnlyContainers)
 			}

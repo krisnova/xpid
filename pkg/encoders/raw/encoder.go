@@ -37,7 +37,7 @@ type Formatter func(p *api.Process) string
 var _ Formatter = DefaultFormatter
 
 func DefaultFormatter(p *api.Process) string {
-	return fmt.Sprintf("[%d] %s (%s)\n", p.PID, p.Name, p.CommandLine)
+	return fmt.Sprintf("[%d] %s(%d):%s(%d) %s (%s)\n", p.PID, p.User.Name, p.User.ID, p.Group.Name, p.Group.ID, p.Name, p.CommandLine)
 }
 
 func (r *RawEncoder) SetFormat(f Formatter) {
