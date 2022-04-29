@@ -1,6 +1,6 @@
 # xpid 
 
-### It's `nmap` but for pids. 🤓
+It's `nmap` but for pids. 🤓
 
 `xpid` gives a user the ability to "investigate" for process details on a Linux system.
 
