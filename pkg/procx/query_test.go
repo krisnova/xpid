@@ -66,7 +66,7 @@ func TestPIDQueryDashReverse(t *testing.T) {
 	}
 }
 
-func TestPIDQueryPlus(t *testing.T) {
+func TestPIDQueryAfter(t *testing.T) {
 	test := "100+"
 	pids := PIDQuery(test)
 	if len(pids) <= 1 {
@@ -78,8 +78,8 @@ func TestPIDQueryPlus(t *testing.T) {
 	}
 }
 
-func TestPIDQueryMinus(t *testing.T) {
-	test := "-100"
+func TestPIDQueryLeading(t *testing.T) {
+	test := "+100"
 	pids := PIDQuery(test)
 	if len(pids) <= 1 {
 		t.Errorf("invalid minus query")

@@ -28,8 +28,8 @@ import (
 func PIDQuery(raw string) []*api.Process {
 	var processes []*api.Process
 	raw = strings.TrimSpace(raw)
-	if strings.HasPrefix(raw, "-") {
-		raw = strings.TrimPrefix(raw, "-")
+	if strings.HasPrefix(raw, "+") {
+		raw = strings.TrimPrefix(raw, "+")
 		pid, err := strconv.Atoi(raw)
 		if err != nil {
 			logrus.Warnf("invalid pid query: %v\n", err)
