@@ -83,10 +83,8 @@ func main() {
 		},
 		Copyright: xpid.Copyright,
 		HelpName:  xpid.Copyright,
-		Usage:     "Linux Process Discovery.",
-		UsageText: `xpid [flags] -o [output]
-
-Its like nmap -- for pids.
+		Usage:     "Linux Process Discovery. Like nmap, but for pids.",
+		UsageText: `xpid [flags] -o [output] <query>
 
 Investigate pid 123 and write the report to out.txt
 	xpid 123 > out.txt
