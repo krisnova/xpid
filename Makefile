@@ -16,7 +16,7 @@
 
 all: compile
 
-version     =  0.0.1
+version     =  1.0.1
 target      =  xpid
 org         =  kris-nova
 authorname  =  Kris Nóva
@@ -26,7 +26,7 @@ year        =  2022
 copyright   =  Copyright (c) $(year)
 cstyle      =  Google
 
-compile: ## Compile for the local architecture ⚙
+compile: libxpid libxpid-install ## Compile for the local architecture ⚙
 	@echo "Compiling..."
 	go build -ldflags "\
 	-X 'github.com/$(org)/$(target).Version=$(version)' \
@@ -48,6 +48,7 @@ test: clean compile install ## 🤓 Run go tests
 
 clean: ## Clean your artifacts 🧼
 	@echo "Cleaning..."
+	rm -rf libxpid/build/*
 	rm -rvf release/*
 
 format: ## Format the code
@@ -73,8 +74,6 @@ libxpid-clean: ## Clean libxpid
 libxpid-install: ## Clean libxpid
 	@echo "Clean libxpid..."
 	cd libxpid/build && make clean
-
-
 
 .PHONY: release
 release: ## Make the binaries for a GitHub release 📦

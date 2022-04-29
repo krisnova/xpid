@@ -86,18 +86,34 @@ func main() {
 		Usage:     "Linux Process Discovery.",
 		UsageText: `xpid [flags] -o [output]
 
+Its like nmap -- for pids.
+
 Investigate pid 123 and write the report to out.txt
 	xpid 123 > out.txt
 
-Find all possible pids, and investigate each one (slow). The --all flag is default.
+Find all container processes on a system 
+	# Looks for /proc/[pid]/ns/cgroup != /proc/1/ns/cgroup 
+	xpid -c <query>
+
+Find all processes running with eBPF programs at runtime.
+	# Looks for /proc/[pid]/fdinfo and correlates to /sys/fs/bpf
+	xpid --ebpf <query>
+
+Find all processes between specific values
+	xpid <flags> +100      # Search pids up to 100
+	xpid <flags> 100-2000  # Search pids between 100-2000 
+	xpid <flags> 65000+    # Search pids 65000 or above
+
+Find all "hidden" processes on a system
+	# Looks for chdir, opendir, and dent in /proc
+	xpid -x <query>
+
+Find all possible pids on a system, and investigate each one (slow). The --all flag is default.
 	xpid > out.txt 
-	xpid --all > out.txt
 
 Investigate all pids from 0 to 1000 and write the report to out.json
-	xpid 0-1000 -o json > out.json
+	xpid -o json 0-1000 > out.json
 
-Find all eBPF pids at runtime (fast).
-	xpid --ebpf
 `,
 		Commands: []*cli.Command{
 			&cli.Command{},
