@@ -76,6 +76,8 @@ func (x *ProcessExplorer) Execute() error {
 	}
 
 	// Main execution loops
+
+	// Safe to do pid 1 again
 	for _, process := range x.processes {
 		for _, module := range x.modules {
 			x.waitGroup.Add(1)

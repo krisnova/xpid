@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io/fs"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -54,6 +55,15 @@ func (p *ProcFileSystem) Dir(dir string) ([]fs.FileInfo, error) {
 func (p *ProcFileSystem) DirPID(pid int64, dir string) ([]fs.FileInfo, error) {
 	dir = fmt.Sprintf("%d/%s", pid, dir)
 	return p.Dir(dir)
+}
+
+func (p *ProcFileSystem) ReadlinkPID(pid int64, file string) (string, error) {
+	file = fmt.Sprintf("%d/%s", pid, file)
+	return p.Readlink(file)
+}
+
+func (p *ProcFileSystem) Readlink(file string) (string, error) {
+	return os.Readlink(filepath.Join(p.rootPath, file))
 }
 
 func Proc() string {
