@@ -35,10 +35,9 @@ type ProcFileSystem struct {
 var p *ProcFileSystem
 
 func NewProcFileSystem(root string) *ProcFileSystem {
-	if p == nil {
-		p = &ProcFileSystem{}
+	return &ProcFileSystem{
+		rootPath: root,
 	}
-	return p
 }
 
 func (p *ProcFileSystem) Contents(file string) (string, error) {

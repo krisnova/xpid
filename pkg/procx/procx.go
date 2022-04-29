@@ -23,19 +23,25 @@ import (
 	api "github.com/kris-nova/xpid/pkg/api/v1"
 )
 
+const (
+	// PidPoolLimit is the limit of concurrent pids to investigate
+	// concurrently. Default to 2^19 = 524288
+	PidPoolLimit int = 524288
+)
+
 type ProcessExplorer struct {
 	processes []*api.Process
 	modules   []ProcessExplorerModule
 	encoder   ProcessExplorerEncoder
 	writer    io.Writer
 	fast      bool
-	waitGroup *sync.WaitGroup
+	ftx       PidPool
 }
 
 func NewProcessExplorer(processes []*api.Process) *ProcessExplorer {
 	return &ProcessExplorer{
 		processes: processes,
-		waitGroup: &sync.WaitGroup{},
+		ftx:       NewPidPool(PidPoolLimit),
 	}
 }
 
@@ -80,7 +86,7 @@ func (x *ProcessExplorer) Execute() error {
 	// Safe to do pid 1 again
 	for _, process := range x.processes {
 		for _, module := range x.modules {
-			x.waitGroup.Add(1)
+			x.ftx.Add()
 			if x.fast {
 				go x.walk(process, module)
 			} else {
@@ -88,7 +94,8 @@ func (x *ProcessExplorer) Execute() error {
 			}
 		}
 	}
-	x.waitGroup.Wait()
+	for x.ftx.Cur() != 0 {
+	}
 	return nil
 }
 
@@ -99,5 +106,39 @@ func (x *ProcessExplorer) walk(p *api.Process, module ProcessExplorerModule) {
 	module.Execute(p)
 	r, _ := x.encoder.Encode(p)
 	x.writer.Write(r)
-	x.waitGroup.Done()
+	x.ftx.Sub()
+}
+
+type PidPool struct {
+	sync.Mutex
+	cur   int
+	limit int
+}
+
+func NewPidPool(limit int) PidPool {
+	return PidPool{
+		limit: limit,
+		cur:   0,
+		Mutex: sync.Mutex{},
+	}
+}
+
+func (x *PidPool) Add() {
+	for x.Cur() >= x.limit {
+	}
+	x.Lock()
+	defer x.Unlock()
+	x.cur++
+}
+
+func (x *PidPool) Sub() {
+	x.Lock()
+	defer x.Unlock()
+	x.cur--
+}
+
+func (x *PidPool) Cur() int {
+	x.Lock()
+	defer x.Unlock()
+	return x.cur
 }
