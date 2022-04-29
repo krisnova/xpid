@@ -13,12 +13,11 @@ checkdepends=()
 optdepends=()
 backup=()
 options=()
-source=("git+https://github.com/kris-nova/xpid.git")
+source=("git+https://github.com/kris-nova/xpid.git#tag=$pkgver")
 sha256sums=('SKIP')
 
 build() {
 	cd xpid
-	git checkout tags/$pkgver -b $pkgver
 	cd libxpid
 	./configure
 	cd build
