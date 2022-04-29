@@ -65,3 +65,15 @@ func TestPIDQueryDashReverse(t *testing.T) {
 		}
 	}
 }
+
+func TestPIDQueryPlus(t *testing.T) {
+	test := "100+"
+	pids := PIDQuery(test)
+	if len(pids) <= 1 {
+		t.Errorf("invalid plus query")
+		t.FailNow()
+	}
+	if pids[0].PID != 100 {
+		t.Errorf("invalid plus query starting point")
+	}
+}

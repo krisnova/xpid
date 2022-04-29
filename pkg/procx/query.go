@@ -52,6 +52,19 @@ func PIDQuery(raw string) []*api.Process {
 			p := api.ProcessPID(int64(i))
 			processes = append(processes, p)
 		}
+	} else if strings.HasSuffix(raw, "+") {
+		raw = strings.TrimSuffix(raw, "+")
+		pid, err := strconv.Atoi(raw)
+		if err != nil {
+			logrus.Warnf("invalid pid query: %v\n", err)
+			return nil
+		}
+		left := pid
+		right := int(MaxPid())
+		for i := left; i <= right; i++ {
+			p := api.ProcessPID(int64(i))
+			processes = append(processes, p)
+		}
 	} else {
 		pid, err := strconv.Atoi(raw)
 		if err != nil {
