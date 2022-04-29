@@ -16,7 +16,7 @@
 
 
 ######################################################################
-set(SO_VERSION "1.0.1")  # Note: Update /src/version.h as well! #
+set(SO_VERSION "1.0.2")  # Note: Update /src/version.h as well! #
 ######################################################################
 
 cmake_minimum_required(VERSION 3.9)
