@@ -77,3 +77,18 @@ func TestPIDQueryPlus(t *testing.T) {
 		t.Errorf("invalid plus query starting point")
 	}
 }
+
+func TestPIDQueryMinus(t *testing.T) {
+	test := "-100"
+	pids := PIDQuery(test)
+	if len(pids) <= 1 {
+		t.Errorf("invalid minus query")
+		t.FailNow()
+	}
+	if pids[0].PID != 0 {
+		t.Errorf("invalid minus query starting point")
+	}
+	if pids[100].PID != 100 {
+		t.Errorf("invalid minus query finish point")
+	}
+}

@@ -28,7 +28,20 @@ import (
 func PIDQuery(raw string) []*api.Process {
 	var processes []*api.Process
 	raw = strings.TrimSpace(raw)
-	if strings.Contains(raw, "-") {
+	if strings.HasPrefix(raw, "-") {
+		raw = strings.TrimPrefix(raw, "-")
+		pid, err := strconv.Atoi(raw)
+		if err != nil {
+			logrus.Warnf("invalid pid query: %v\n", err)
+			return nil
+		}
+		left := 0
+		right := pid
+		for i := left; i <= right; i++ {
+			p := api.ProcessPID(int64(i))
+			processes = append(processes, p)
+		}
+	} else if strings.Contains(raw, "-") {
 		spl := strings.Split(raw, "-")
 		if len(spl) != 2 {
 			return nil
