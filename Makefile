@@ -16,7 +16,7 @@
 
 all: compile
 
-version     =  1.0.2
+version     =  1.0.3
 target      =  xpid
 org         =  kris-nova
 authorname  =  Kris Nóva
@@ -62,7 +62,7 @@ format: ## Format the code
 libxpid: libxpid-clean ## Compile and install libxpid
 	@echo "Building libxpid..."
 	mkdir -p libxpid/build
-	cd libxpid/build && cmake ../
+	cd libxpid && ./configure
 	cd libxpid/build && make
 
 .PHONY: aur
