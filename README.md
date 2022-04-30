@@ -1,6 +1,6 @@
 # xpid 
 
-It's `nmap` but for pids. 🤓
+It's [`nmap`](https://nmap.org/) but for pids. 🤓
 
 `xpid` gives a user the ability to "investigate" for process details on a Linux system.
 
@@ -43,7 +43,7 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 
 `xpid` will lookup container processes at runtime. 🎉
 
-This works by reading the link in `/proc/[pid]/ns/@cgroup` and correlating it back to the value in `/proc/1/[pid]/ns/@cgroup`.
+This works by reading the link in [`/proc/[pid]/ns/@cgroup`](https://man7.org/linux/man-pages/man7/namespaces.7.html#:~:text=/proc/%5Bpid%5D/ns/cgroup) and correlating it back to the value in `/proc/1/[pid]/ns/@cgroup`.
 
 Regardless of the pid namespace context, if there is a "container" that is unique from the current pid 1, `xpid` will find it.
 
@@ -51,12 +51,12 @@ Regardless of the pid namespace context, if there is a "container" that is uniqu
 
 `xpid` will find pids that have eBPF programs loaded at runtime.
 
-This works by correlating the file descriptor info from `/proc/[pid]/fdinfo/*` back to `/sys/fs/bpf/progs.debug`. 
+This works by correlating the file descriptor info from [`/proc/[pid]/fdinfo/*`](https://man7.org/linux/man-pages/man5/proc.5.html#:~:text=file%20descriptor%200.-,/proc/%5Bpid%5D/fdinfo/,-(since%20Linux%202.6.22)) back to `/sys/fs/bpf/progs.debug`. 
 If a pid has an eBPF program loaded, `xpid` will find it.
 
 ## Hidden pids (xpid -x) 🙈
 
-Because of the flexibility with kernel modules and eBPF in the kernel, it can be possible to prevent the `proc(5)` filesystem from listing pid details in traditional ways.
+Because of the flexibility with kernel modules and eBPF in the kernel, it can be possible to prevent the [`proc(5)`](https://man7.org/linux/man-pages/man5/proc.5.html) filesystem from listing pid details in traditional ways.
 
 `xpid` uses a variety of tactics to search for pids in the same way `nmap` will use different tactics to port scan a target.
 
@@ -74,7 +74,7 @@ sudo make install
 
 ## Xpid C library (libxpid)
 
-`libxpid` is written in C, as it will leverage `ptrace(2)` and eBPF code directly. 
+`libxpid` is written in C, as it will leverage [`ptrace(2)`](https://man7.org/linux/man-pages/man2/ptrace.2.html) and eBPF code directly. 
 This means that the `xpid` executable is NOT entirely statically linked. 
 You must first have `libxpid` installed on your system, before the `xpid` Go program will run.
 
