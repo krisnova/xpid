@@ -4,7 +4,7 @@ It's `nmap` but for pids. 🤓
 
 `xpid` gives a user the ability to "investigate" for process details on a Linux system.
 
-For example a sleeping thread will have a directory `/proc/[pid]` directoy that can be navigated to, but not listed.
+For example a sleeping thread will have a directory `/proc/[pid]` that can be navigated to, but not listed.
 
 `xpid` will check many different places in the kernel for details about a pid. 
 By searching subsets of possible pids `xpid` will be able to check for pid details in many places in the kernel.
@@ -41,7 +41,7 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 
 ## Container pids (xpid -c) 📦
 
-`xpid` will lookup container processes at runtime 🎉
+`xpid` will lookup container processes at runtime. 🎉
 
 This works by reading the link in `/proc/[pid]/ns/@cgroup` and correlating it back to the value in `/proc/1/[pid]/ns/@cgroup`.
 
@@ -56,14 +56,14 @@ If a pid has an eBPF program loaded, `xpid` will find it.
 
 ## Hidden pids (xpid -x) 🙈
 
-Because of the flexibility with kernel modules, and eBPF in the kernel it can be possible to prevent the `proc(5)` filesystem from listing pid details in traditional ways.
+Because of the flexibility with kernel modules and eBPF in the kernel, it can be possible to prevent the `proc(5)` filesystem from listing pid details in traditional ways.
 
 `xpid` uses a variety of tactics to search for pids in the same way `nmap` will use different tactics to port scan a target.
 
 ## Go runtime
 
 `xpid` is a Go runtime utility that depends on `libxpid`.
-Install `libxpid` first, and then compile the Go runtime.
+Install `libxpid` first (below), and then compile the Go runtime.
 
 ```bash
 git clone https://github.com/kris-nova/xpid.git
@@ -74,7 +74,7 @@ sudo make install
 
 ## Xpid C library (libxpid)
 
-`libxpid` is written in C as it will leverage ptrace(2) and eBPF code directly. 
+`libxpid` is written in C, as it will leverage `ptrace(2)` and eBPF code directly. 
 This means that the `xpid` executable is NOT entirely statically linked. 
 You must first have `libxpid` installed on your system, before the `xpid` Go program will run.
 
