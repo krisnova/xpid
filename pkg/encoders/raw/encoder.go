@@ -14,22 +14,33 @@
  *                                                                           *
 \*===========================================================================*/
 
-package Raw
+package raw
 
 import (
 	"fmt"
 
+	encoder "github.com/kris-nova/xpid/pkg/encoders"
+
 	filter "github.com/kris-nova/xpid/pkg/filters"
 
 	api "github.com/kris-nova/xpid/pkg/api/v1"
-	"github.com/kris-nova/xpid/pkg/procx"
 )
 
-var _ procx.ProcessExplorerEncoder = &RawEncoder{}
+var _ encoder.ProcessExplorerEncoder = &RawEncoder{}
 
 type RawEncoder struct {
 	filters []filter.ProcessFilter
 	format  Formatter
+}
+
+func (r *RawEncoder) EncodeAll(p *api.Process) ([]byte, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (r *RawEncoder) EncodeUser(u *api.User) ([]byte, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 type Formatter func(p *api.Process) string

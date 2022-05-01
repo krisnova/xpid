@@ -13,34 +13,22 @@
  *                       This machine kills fascists.                        *
  *                                                                           *
 \*===========================================================================*/
-/*
- * The proc module is responsible for the vast majority of the PID meta detail.
- * In most situations, this module will need to be executed in order to retrieve
- * the meta information about a process.
- */
 
-package modproc
+package v1
 
 import (
 	"os/user"
 	"strconv"
 	"strings"
 
-	api "github.com/kris-nova/xpid/pkg/api/v1"
+	procfs "github.com/kris-nova/xpid/pkg/procfs"
+
 	"github.com/kris-nova/xpid/pkg/libxpid"
-	module "github.com/kris-nova/xpid/pkg/modules"
-	"github.com/kris-nova/xpid/pkg/procx"
 )
 
-var _ procx.ProcessExplorerModule = &ProcModule{}
+var _ ProcessExplorerModule = &ProcModule{}
 
 type ProcModule struct {
-}
-
-var _ procx.ProcessExplorerResult = &ProcModuleResult{}
-
-type ProcModuleResult struct {
-	pid       *api.Process
 	Opendir   int
 	Chdir     int
 	Dent      int
@@ -59,8 +47,8 @@ func NewProcModule() *ProcModule {
 	return &ProcModule{}
 }
 
-func (m *ProcModule) Meta() *module.Meta {
-	return &module.Meta{
+func (m *ProcModule) Meta() *Meta {
+	return &Meta{
 		Name:        "Proc module",
 		Description: "Search proc(5) filesystems for pid information. Will do an in depth scan and search for obfuscated directories.",
 		Authors: []string{
@@ -69,9 +57,9 @@ func (m *ProcModule) Meta() *module.Meta {
 	}
 }
 
-func (m *ProcModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error) {
+func (m *ProcModule) Execute(p *Process) error {
 	// Module specific (correlated)
-	result := &ProcModuleResult{}
+	result := &ProcModule{}
 
 	// Process visibility
 	result.Opendir = libxpid.ProcDirOpendir(p.PID)
@@ -79,16 +67,16 @@ func (m *ProcModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error
 	result.Dent = libxpid.ProcDirDent(p.PID)
 
 	// Meta (comm. cmdline, status)
-	procfs := NewProcFileSystem(Proc())
-	comm, _ := procfs.ContentsPID(p.PID, "comm")
+	procfshandle := procfs.NewProcFileSystem(procfs.Proc())
+	comm, _ := procfshandle.ContentsPID(p.PID, "comm")
 	result.Comm = strings.TrimSpace(comm)
-	cmdline, _ := procfs.ContentsPID(p.PID, "cmdline")
+	cmdline, _ := procfshandle.ContentsPID(p.PID, "cmdline")
 	result.Cmdline = strings.TrimSpace(cmdline)
-	status, _ := procfs.ContentsPID(p.PID, "status")
+	status, _ := procfshandle.ContentsPID(p.PID, "status")
 	result.Status = strings.TrimSpace(status)
 
 	// User
-	uidMap, _ := procfs.ContentsPID(p.PID, "uid_map")
+	uidMap, _ := procfshandle.ContentsPID(p.PID, "uid_map")
 	result.UID = IDFromMap(uidMap)
 	u, _ := user.LookupId(IDFromMapString(uidMap))
 	if u != nil {
@@ -97,7 +85,7 @@ func (m *ProcModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error
 	}
 
 	// Group
-	gidMap, _ := procfs.ContentsPID(p.PID, "gid_map")
+	gidMap, _ := procfshandle.ContentsPID(p.PID, "gid_map")
 	result.GID = IDFromMap(gidMap)
 	g, _ := user.LookupGroupId(IDFromMapString(gidMap))
 	if g != nil {
@@ -119,7 +107,7 @@ func (m *ProcModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error
 	p.Group.ID = result.GID
 	p.Group.Name = result.Groupname
 
-	return result, nil
+	return nil
 }
 
 // IDFromMap returns the first value in uid_map and gid_map in /proc
@@ -142,8 +130,8 @@ func IDFromMapString(mp string) string {
 }
 
 func StatusFileIsThread(status string) bool {
-	tgid := FileKeyValue(status, "Tgid")
-	pid := FileKeyValue(status, "Pid")
+	tgid := procfs.FileKeyValue(status, "Tgid")
+	pid := procfs.FileKeyValue(status, "Pid")
 	if tgid != "" && pid != "" {
 		if tgid != pid {
 			return true

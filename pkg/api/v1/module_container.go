@@ -14,39 +14,30 @@
  *                                                                           *
 \*===========================================================================*/
 
-package modcontainer
+package v1
 
 import (
 	"fmt"
 
-	api "github.com/kris-nova/xpid/pkg/api/v1"
-	module "github.com/kris-nova/xpid/pkg/modules"
-	modproc "github.com/kris-nova/xpid/pkg/modules/proc"
-	"github.com/kris-nova/xpid/pkg/procx"
+	"github.com/kris-nova/xpid/pkg/procfs"
 )
 
-var _ procx.ProcessExplorerModule = &ContainerModule{}
+var _ ProcessExplorerModule = &ContainerModule{}
 
 type ContainerModule struct {
+	// NamespaceCgroupLink /proc/[pid]/ns/@cgroup
+	NamespaceCgroupLink string
 }
 
 func NewContainerModule() *ContainerModule {
 	m := &ContainerModule{}
 	// We always need a pid 1
-	m.Execute(api.ProcessPID(1))
+	m.Execute(ProcessPID(1))
 	return m
 }
 
-type ContainerModuleResult struct {
-	pid *api.Process
-
-	// NamespaceCgroupLink /proc/[pid]/ns/@cgroup
-	NamespaceCgroupLink string
-	// raw fields
-}
-
-func (m *ContainerModule) Meta() *module.Meta {
-	return &module.Meta{
+func (m *ContainerModule) Meta() *Meta {
+	return &Meta{
 		Name:        "Container module",
 		Description: "Find container meta information at runtime.",
 		Authors: []string{
@@ -55,26 +46,24 @@ func (m *ContainerModule) Meta() *module.Meta {
 	}
 }
 
-var pidone *ContainerModuleResult
+var pidone *ContainerModule
 
-func (m *ContainerModule) Execute(p *api.Process) (procx.ProcessExplorerResult, error) {
+func (m *ContainerModule) Execute(p *Process) error {
 	// Module specific (correlated)
-	result := &ContainerModuleResult{}
+	result := &ContainerModule{}
 
-	procfs := modproc.NewProcFileSystem(modproc.Proc())
-	nscgroup, _ := procfs.ReadlinkPID(p.PID, "ns/cgroup")
+	procfshandle := procfs.NewProcFileSystem(procfs.Proc())
+	nscgroup, _ := procfshandle.ReadlinkPID(p.PID, "ns/cgroup")
 	result.NamespaceCgroupLink = nscgroup
-
-	// Map
 
 	// If it's pid 1  we can just move on, there is nothing to compare
 	if p.PID == 1 {
 		p.Container = false
 		pidone = result
-		return result, nil
+		return nil
 	}
 	if pidone == nil {
-		return nil, fmt.Errorf("pid one not initialized")
+		return fmt.Errorf("pid one not initialized")
 	}
 
 	// Research:
@@ -91,5 +80,5 @@ func (m *ContainerModule) Execute(p *api.Process) (procx.ProcessExplorerResult, 
 		p.Container = true
 	}
 
-	return result, nil
+	return nil
 }

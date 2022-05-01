@@ -20,16 +20,27 @@ import (
 	"encoding/json"
 	"fmt"
 
+	encoder "github.com/kris-nova/xpid/pkg/encoders"
+
 	filter "github.com/kris-nova/xpid/pkg/filters"
 
 	api "github.com/kris-nova/xpid/pkg/api/v1"
-	"github.com/kris-nova/xpid/pkg/procx"
 )
 
-var _ procx.ProcessExplorerEncoder = &JSONEncoder{}
+var _ encoder.ProcessExplorerEncoder = &JSONEncoder{}
 
 type JSONEncoder struct {
 	filters []filter.ProcessFilter
+}
+
+func (j *JSONEncoder) EncodeAll(p *api.Process) ([]byte, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (j *JSONEncoder) EncodeUser(u *api.User) ([]byte, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (j *JSONEncoder) Encode(p *api.Process) ([]byte, error) {

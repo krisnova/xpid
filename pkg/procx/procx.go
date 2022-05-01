@@ -20,6 +20,8 @@ import (
 	"io"
 	"sync"
 
+	encoder "github.com/kris-nova/xpid/pkg/encoders"
+
 	api "github.com/kris-nova/xpid/pkg/api/v1"
 )
 
@@ -31,8 +33,8 @@ const (
 
 type ProcessExplorer struct {
 	processes []*api.Process
-	modules   []ProcessExplorerModule
-	encoder   ProcessExplorerEncoder
+	modules   []api.ProcessExplorerModule
+	encoder   encoder.ProcessExplorerEncoder
 	writer    io.Writer
 	fast      bool
 	ftx       PidPool
@@ -45,11 +47,11 @@ func NewProcessExplorer(processes []*api.Process) *ProcessExplorer {
 	}
 }
 
-func (x *ProcessExplorer) AddModule(m ProcessExplorerModule) {
+func (x *ProcessExplorer) AddModule(m api.ProcessExplorerModule) {
 	x.modules = append(x.modules, m)
 }
 
-func (x *ProcessExplorer) SetEncoder(e ProcessExplorerEncoder) {
+func (x *ProcessExplorer) SetEncoder(e encoder.ProcessExplorerEncoder) {
 	x.encoder = e
 }
 
@@ -102,8 +104,8 @@ func (x *ProcessExplorer) Execute() error {
 // Walk ignores errors and will walk a process and a module
 //
 // Walk may be ran concurrently if needed
-func (x *ProcessExplorer) walk(p *api.Process, module ProcessExplorerModule) {
-	module.Execute(p)
+func (x *ProcessExplorer) walk(p *api.Process, module api.ProcessExplorerModule) {
+	module.Execute(p) // Ignore errors in walk
 	r, _ := x.encoder.Encode(p)
 	x.writer.Write(r)
 	x.ftx.Sub()

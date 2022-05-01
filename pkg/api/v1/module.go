@@ -14,7 +14,7 @@
  *                                                                           *
 \*===========================================================================*/
 
-package module
+package v1
 
 type Meta struct {
 	Name        string

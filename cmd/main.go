@@ -18,24 +18,20 @@ package main
 
 import (
 	"fmt"
-	modcontainer "github.com/kris-nova/xpid/pkg/modules/container"
-	modnamespace "github.com/kris-nova/xpid/pkg/modules/namespace"
 	"os"
 	"os/user"
 	"strconv"
 	"time"
 
-	modebpf "github.com/kris-nova/xpid/pkg/modules/ebpf"
+	"github.com/kris-nova/xpid/pkg/encoders/raw"
+
+	encoder "github.com/kris-nova/xpid/pkg/encoders"
 
 	filter "github.com/kris-nova/xpid/pkg/filters"
-
-	Raw "github.com/kris-nova/xpid/pkg/encoders/raw"
 
 	"github.com/kris-nova/xpid/pkg/encoders/json"
 
 	v1 "github.com/kris-nova/xpid/pkg/api/v1"
-
-	modproc "github.com/kris-nova/xpid/pkg/modules/proc"
 
 	"github.com/kris-nova/xpid/pkg/procx"
 
@@ -218,17 +214,6 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 		Action: func(c *cli.Context) error {
 			var pids []*v1.Process
 
-			// Left off here.
-			// We need to refactor the code and figure out
-			// what we are doing with the "API"
-			//
-			// Then we need xpid -u to pull the current namespace
-			// fields out and print them - then we can use those values
-			// to compare to each pid :)
-			//
-			// Should be fun
-			fmt.Println("BROKEN")
-			os.Exit(1)
 			if cfg.User {
 				fmt.Print(userMeta())
 				os.Exit(0)
@@ -255,18 +240,18 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 			x.SetFast(cfg.Fast)
 
 			// Encoder
-			var encoder procx.ProcessExplorerEncoder
+			var encoder encoder.ProcessExplorerEncoder
 			switch cfg.Output {
 			case "json":
 				encoder = json.NewJSONEncoder()
 				break
 			case "raw":
-				encoder = Raw.NewRawEncoder()
+				encoder = raw.NewRawEncoder()
 				break
 			case "color":
 			default:
-				rawcolor := Raw.NewRawEncoder()
-				rawcolor.SetFormat(Raw.ColorFormatter)
+				rawcolor := raw.NewRawEncoder()
+				rawcolor.SetFormat(raw.ColorFormatter)
 				encoder = rawcolor
 			}
 
@@ -280,17 +265,17 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 			}
 
 			// Always load "proc" module
-			x.AddModule(modproc.NewProcModule())
+			x.AddModule(v1.NewProcModule())
 
 			// Check for EBPF
 			if cfg.Ebpf {
-				x.AddModule(modebpf.NewEBPFModule())
+				x.AddModule(v1.NewEBPFModule())
 				encoder.AddFilter(filter.RetainOnlyEBPF)
 			}
 
 			// Check for container
 			if cfg.Container {
-				x.AddModule(modcontainer.NewContainerModule())
+				x.AddModule(v1.NewContainerModule())
 				encoder.AddFilter(filter.RetainOnlyContainers)
 			}
 
@@ -299,15 +284,15 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 			if len(nsOuts) > 0 {
 				for _, nsIn := range nsOuts {
 					switch nsIn {
-					case modnamespace.NamespaceMount:
+					case v1.NamespaceMount:
 						break
-					case modnamespace.NamespaceIPC:
+					case v1.NamespaceIPC:
 						break
-					case modnamespace.NamespaceNet:
+					case v1.NamespaceNet:
 						break
-					case modnamespace.NamespaceCgroup:
+					case v1.NamespaceCgroup:
 						break
-					case modnamespace.NamespacePid:
+					case v1.NamespacePid:
 						break
 					default:
 						logrus.Errorf("invalid namespace-in: %s", nsIn)
@@ -321,15 +306,15 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 			if len(nsIns) > 0 {
 				for _, nsIn := range nsIns {
 					switch nsIn {
-					case modnamespace.NamespaceMount:
+					case v1.NamespaceMount:
 						break
-					case modnamespace.NamespaceIPC:
+					case v1.NamespaceIPC:
 						break
-					case modnamespace.NamespaceNet:
+					case v1.NamespaceNet:
 						break
-					case modnamespace.NamespaceCgroup:
+					case v1.NamespaceCgroup:
 						break
-					case modnamespace.NamespacePid:
+					case v1.NamespacePid:
 						break
 					default:
 						logrus.Errorf("invalid namespace-in: %s", nsIn)

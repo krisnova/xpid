@@ -14,24 +14,47 @@
  *                                                                           *
 \*===========================================================================*/
 
-package procx
+package table
 
 import (
-	api "github.com/kris-nova/xpid/pkg/api/v1"
+	"encoding/json"
+	"fmt"
+
 	filter "github.com/kris-nova/xpid/pkg/filters"
-	module "github.com/kris-nova/xpid/pkg/modules"
+
+	api "github.com/kris-nova/xpid/pkg/api/v1"
+	"github.com/kris-nova/xpid/pkg/procx"
 )
 
-type ProcessExplorerModule interface {
-	Meta() *module.Meta
-	Execute(process *api.Process) (ProcessExplorerResult, error)
+var _ procx.ProcessExplorerEncoder = &TableEncoder{}
+
+type TableEncoder struct {
+	filters []filter.ProcessFilter
 }
 
-type ProcessExplorerResult interface {
-	// Pass to encoder
+func (j *TableEncoder) EncodeAll(p *api.Process) ([]byte, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
-type ProcessExplorerEncoder interface {
-	AddFilter(f filter.ProcessFilter)
-	Encode(p *api.Process) ([]byte, error)
+func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
+	for _, f := range j.filters {
+		if !f(p) {
+			return []byte(""), fmt.Errorf(filter.Filtered)
+		}
+	}
+	return json.Marshal(p)
+}
+
+func (j *TableEncoder) AddFilter(f filter.ProcessFilter) {
+	j.filters = append(j.filters, f)
+}
+
+func NewTableEncoder() *TableEncoder {
+	return &TableEncoder{}
 }

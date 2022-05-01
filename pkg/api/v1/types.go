@@ -106,6 +106,8 @@ type ProcessVisible struct {
 	Dent int
 }
 
+// Todo refactor this to module_ebpf.go
+
 type EBPFMeta struct {
 	Progs []string
 	Maps  []string
