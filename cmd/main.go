@@ -19,6 +19,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/user"
+	"strconv"
 	"time"
 
 	modcontainer "github.com/kris-nova/xpid/pkg/modules/container"
@@ -63,6 +65,10 @@ type AppOptions struct {
 	// Containers
 	Container bool
 }
+
+const (
+	ExitCode_PermissionDenied int = 99
+)
 
 func main() {
 	/* Change version to -V */
@@ -277,4 +283,20 @@ func Preloader() {
 	} else {
 		logrus.SetLevel(logrus.WarnLevel)
 	}
+
+	if cfg.Container {
+		if !isuid(0) {
+			logrus.Errorf("Permission denied.")
+			os.Exit(ExitCode_PermissionDenied)
+		}
+	}
+}
+
+func isuid(check int) bool {
+	u, _ := user.Current()
+	if u == nil {
+		return false
+	}
+	i, _ := strconv.Atoi(u.Uid)
+	return check == i
 }
