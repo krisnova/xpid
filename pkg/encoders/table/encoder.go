@@ -19,6 +19,9 @@ package table
 import (
 	"fmt"
 
+	"github.com/fatih/color"
+	"golang.org/x/term"
+
 	encoder "github.com/kris-nova/xpid/pkg/encoders"
 
 	filter "github.com/kris-nova/xpid/pkg/filters"
@@ -40,12 +43,14 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 	var str string
 
 	// Header
-
-	str += fmt.Sprintf("%-*s", len(u.Name)+3, "USER")
-	str += fmt.Sprintf("%-*s", 5, "UID")
-	str += fmt.Sprintf("%-*s", len(u.Group.Name)+3, "GROUP")
-	str += fmt.Sprintf("%-*s", 5, "GID")
-	str += fmt.Sprintf("\n")
+	var hdr string
+	hdr += fmt.Sprintf("%-*s", len(u.Name)+3, "USER")
+	hdr += fmt.Sprintf("%-*s", 5, "UID")
+	hdr += fmt.Sprintf("%-*s", len(u.Group.Name)+3, "GROUP")
+	hdr += fmt.Sprintf("%-*s", 5, "GID")
+	hdr += fmt.Sprintf("\n")
+	str += drawLine()
+	str += color.GreenString(hdr)
 
 	// First line
 	str += fmt.Sprintf("%-*s", len(u.Name)+3, u.Name)
@@ -53,12 +58,13 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 	str += fmt.Sprintf("%-*s", len(u.Group.Name)+3, u.Group.Name)
 	str += fmt.Sprintf("%-*d", 5, u.Group.ID)
 	str += fmt.Sprintf("\n")
+	str += drawLine()
 
 	return []byte(str), nil
 }
 
 var (
-	TableFmtNS bool = true
+	TableFmtNS bool = false
 )
 
 func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
@@ -69,24 +75,27 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	}
 
 	var str string
-
+	var hdr string
 	if p.ShowHeader {
 		// Header
-		str += fmt.Sprintf("%-7s", "PID")
-		str += fmt.Sprintf("%-9s", "USER")
-		str += fmt.Sprintf("%-9s", "GROUP")
+		hdr += fmt.Sprintf("%-7s", "PID")
+		hdr += fmt.Sprintf("%-9s", "USER")
+		hdr += fmt.Sprintf("%-9s", "GROUP")
 		if TableFmtNS {
-			str += fmt.Sprintf("%-12s", "NS-PID")    // Compute
-			str += fmt.Sprintf("%-12s", "NS-CGROUP") // Compute
-			str += fmt.Sprintf("%-12s", "NS-NET")    // Network
-			str += fmt.Sprintf("%-12s", "NS-MNT")    // Storage\
+			hdr += fmt.Sprintf("%-12s", "NS-PID")    // Compute
+			hdr += fmt.Sprintf("%-12s", "NS-CGROUP") // Compute
+			hdr += fmt.Sprintf("%-12s", "NS-NET")    // Network
+			hdr += fmt.Sprintf("%-12s", "NS-MNT")    // Storage\
 		}
-		str += fmt.Sprintf("%-16s", "CMD")
-		str += fmt.Sprintf("\n")
+		hdr += fmt.Sprintf("%-16s", "CMD")
+		hdr += fmt.Sprintf("\n")
 	}
+	hdrColor := color.New(color.FgGreen)
+	hdr = hdrColor.Sprintf(hdr)
+	str += hdr
 
 	// First line
-	str += fmt.Sprintf("%-7d", p.PID)
+	str += color.YellowString(fmt.Sprintf("%-7d", p.PID))
 	str += fmt.Sprintf("%-9s", p.User.Name)
 	str += fmt.Sprintf("%-9s", p.User.Group.Name)
 	if TableFmtNS {
@@ -95,8 +104,12 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Net)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Mount)
 	}
-	str += fmt.Sprintf("%-16s", p.ProcModule.Comm)
+	str += color.CyanString(fmt.Sprintf("%-16s", p.ProcModule.Comm))
 	str += fmt.Sprintf("\n")
+
+	if p.DrawLineAfter {
+		str += drawLine()
+	}
 
 	return []byte(str), nil
 
@@ -108,4 +121,18 @@ func (j *TableEncoder) AddFilter(f filter.ProcessFilter) {
 
 func NewTableEncoder() *TableEncoder {
 	return &TableEncoder{}
+}
+
+func drawLine() string {
+	y, _, _ := term.GetSize(0)
+	if y == 0 {
+		return ""
+	}
+	lc := color.New(color.Bold, color.FgGreen)
+	var str string
+	for i := 0; i < y; i++ {
+		str += lc.Sprintf("─")
+	}
+	str += "\n"
+	return str
 }

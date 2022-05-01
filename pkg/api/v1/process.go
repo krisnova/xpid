@@ -43,7 +43,8 @@ type Process struct {
 
 	// showHeader is used to also encode the header for runtime encoders.
 	// This should never be used by formatting encoders such as JSON or similar.
-	ShowHeader bool
+	ShowHeader    bool
+	DrawLineAfter bool
 
 	// ProcessVisible is a combination of the values
 	// we get from libxpid that will determine if a process

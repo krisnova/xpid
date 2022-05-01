@@ -73,6 +73,9 @@ type AppOptions struct {
 	NamespaceOutPid1 cli.StringSlice
 	NamespaceInUser  cli.StringSlice
 	NamespaceOutUser cli.StringSlice
+
+	// TableFormatters
+	ShowTableNamespaces bool
 }
 
 const (
@@ -197,6 +200,12 @@ Find all pids where
 				Destination: &cfg.Container,
 				Value:       false,
 			},
+			&cli.BoolFlag{
+				Name:        "n",
+				Aliases:     []string{"namespaces"},
+				Destination: &cfg.ShowTableNamespaces,
+				Value:       false,
+			},
 		},
 		EnableBashCompletion: false,
 		HideHelp:             false,
@@ -245,20 +254,20 @@ Find all pids where
 				encoder = raw.NewRawEncoder()
 				break
 			case "color":
-			default:
 				rawcolor := raw.NewRawEncoder()
 				rawcolor.SetFormat(raw.ColorFormatter)
 				encoder = rawcolor
+			default:
+				table.TableFmtNS = cfg.ShowTableNamespaces
+				encoder = table.NewTableEncoder()
 			}
 
 			// First the current user
-			fmt.Print(drawLine())
 			bytes, err := encoder.EncodeUser(currentUser())
 			if err != nil {
 				return fmt.Errorf("unable to find current user: %v", err)
 			}
 			fmt.Print(string(bytes))
-			fmt.Print(drawLine())
 
 			// Next pid one
 			pid1 := v1.ProcessPID(1)
@@ -276,12 +285,12 @@ Find all pids where
 			v1.NewProcModule().Execute(upid)
 			v1.NewNamespaceModule().Execute(upid)
 
+			upid.DrawLineAfter = true
 			bytes, err = encoder.Encode(upid)
 			if err != nil {
 				return fmt.Errorf("unable to encode current upid: %v", err)
 			}
 			fmt.Print(string(bytes))
-			fmt.Print(drawLine())
 
 			// Filters
 			filter.PidOne = pid1
