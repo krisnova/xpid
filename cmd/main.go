@@ -18,12 +18,12 @@ package main
 
 import (
 	"fmt"
+	modcontainer "github.com/kris-nova/xpid/pkg/modules/container"
+	modnamespace "github.com/kris-nova/xpid/pkg/modules/namespace"
 	"os"
 	"os/user"
 	"strconv"
 	"time"
-
-	modcontainer "github.com/kris-nova/xpid/pkg/modules/container"
 
 	modebpf "github.com/kris-nova/xpid/pkg/modules/ebpf"
 
@@ -47,27 +47,49 @@ import (
 var cfg = &AppOptions{}
 
 type AppOptions struct {
+
+	// Verbose will toggle verbosity (breaks encoding)
 	Verbose bool
-	Fast    bool
+
+	// Fast will toggle the concurrent pool buffer for the process explorer.
+	// If enabled will run concurrently, or "fast".
+	Fast bool
 
 	// Encoders
+	//
+	// Support: raw, json, color
 	Output string
 
-	Hidden  bool
+	// Hidden will only show "hidden" pids
+	Hidden bool
+
+	// Show meta information about the user
+	User bool
+
+	// Threads will toggle showing threads in a result
 	Threads bool
 
-	Probe bool
-
-	// Modules
-	All  bool
-	Proc bool
+	// Ebpf works like containers. Will attempt to show Ebpf programs.
+	Ebpf bool
 
 	// Containers
 	Container bool
+
+	// Namespace flags can be used to filter on pids that are in/out of the
+	// current namespace context.
+	//
+	// For example if the user was running in a given mount namespace and
+	// wanted to list all pids in the same mount namespace they would use
+	// 	xpid --ns-in mount
+	//
+	// Available namespaces: mnt, pid, net, ipc, cgroup
+	NamespaceIn  cli.StringSlice
+	NamespaceOut cli.StringSlice
 }
 
 const (
 	ExitCode_PermissionDenied int = 99
+	ExitCode_InvalidNamespace int = 80
 )
 
 func main() {
@@ -112,7 +134,7 @@ Find all "hidden" processes on a system
 	# Looks for chdir, opendir, and dent in /proc
 	xpid -x <query>
 
-Find all possible pids on a system, and investigate each one (slow). The --all flag is default.
+Find all possible pids on a system, and investigate each one (slow).
 	xpid > out.txt 
 
 Investigate all pids from 0 to 1000 and write the report to out.json
@@ -133,12 +155,17 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 				Aliases:     []string{"o", "out"},
 				Destination: &cfg.Output,
 			},
-			// Modules should have capital single letter flags!
-			&cli.BoolFlag{
-				Name:        "all",
-				Aliases:     []string{"A"},
-				Destination: &cfg.All,
-				Value:       false,
+			&cli.StringSliceFlag{
+				Name:        "ns-in",
+				Aliases:     []string{"namespace-in", "N"},
+				Destination: &cfg.NamespaceIn,
+				Usage:       "Return only pids in [mnt, net, pid, ipc, cgroup] namespace that matches the user.",
+			},
+			&cli.StringSliceFlag{
+				Name:        "ns-out",
+				Aliases:     []string{"namespace-out", "O"},
+				Destination: &cfg.NamespaceOut,
+				Usage:       "Reject pids from [mnt, net, pid, ipc, cgroup] namespace that matches the user.",
 			},
 			&cli.BoolFlag{
 				Name:        "fast",
@@ -147,9 +174,9 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 				Value:       true,
 			},
 			&cli.BoolFlag{
-				Name:        "probe",
-				Aliases:     []string{"bpf", "ebpf", "b"},
-				Destination: &cfg.Probe,
+				Name:        "ebpf",
+				Aliases:     []string{"bpf", "b"},
+				Destination: &cfg.Ebpf,
 				Value:       false,
 			},
 			&cli.BoolFlag{
@@ -165,9 +192,9 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 				Value:       false,
 			},
 			&cli.BoolFlag{
-				Name:        "proc",
-				Aliases:     []string{"P"},
-				Destination: &cfg.Proc,
+				Name:        "user",
+				Aliases:     []string{"u"},
+				Destination: &cfg.User,
 				Value:       false,
 			},
 			&cli.BoolFlag{
@@ -190,6 +217,23 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 		},
 		Action: func(c *cli.Context) error {
 			var pids []*v1.Process
+
+			// Left off here.
+			// We need to refactor the code and figure out
+			// what we are doing with the "API"
+			//
+			// Then we need xpid -u to pull the current namespace
+			// fields out and print them - then we can use those values
+			// to compare to each pid :)
+			//
+			// Should be fun
+			fmt.Println("BROKEN")
+			os.Exit(1)
+			if cfg.User {
+				fmt.Print(userMeta())
+				os.Exit(0)
+			}
+
 			query := c.Args().Get(0)
 			if query == "" {
 				max := procx.MaxPid()
@@ -234,32 +278,66 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 			if !cfg.Threads {
 				encoder.AddFilter(filter.RejectThreads)
 			}
+
+			// Always load "proc" module
+			x.AddModule(modproc.NewProcModule())
+
+			// Check for EBPF
+			if cfg.Ebpf {
+				x.AddModule(modebpf.NewEBPFModule())
+				encoder.AddFilter(filter.RetainOnlyEBPF)
+			}
+
+			// Check for container
 			if cfg.Container {
 				x.AddModule(modcontainer.NewContainerModule())
 				encoder.AddFilter(filter.RetainOnlyContainers)
 			}
 
-			// Set encoder after filters are applied
+			// Namespace [Out]
+			nsOuts := cfg.NamespaceOut.Value()
+			if len(nsOuts) > 0 {
+				for _, nsIn := range nsOuts {
+					switch nsIn {
+					case modnamespace.NamespaceMount:
+						break
+					case modnamespace.NamespaceIPC:
+						break
+					case modnamespace.NamespaceNet:
+						break
+					case modnamespace.NamespaceCgroup:
+						break
+					case modnamespace.NamespacePid:
+						break
+					default:
+						logrus.Errorf("invalid namespace-in: %s", nsIn)
+						os.Exit(ExitCode_InvalidNamespace)
+					}
+				}
+			}
 
-			if !cfg.Probe && !cfg.Proc {
-				cfg.All = true
+			// Namespace [In]
+			nsIns := cfg.NamespaceIn.Value()
+			if len(nsIns) > 0 {
+				for _, nsIn := range nsIns {
+					switch nsIn {
+					case modnamespace.NamespaceMount:
+						break
+					case modnamespace.NamespaceIPC:
+						break
+					case modnamespace.NamespaceNet:
+						break
+					case modnamespace.NamespaceCgroup:
+						break
+					case modnamespace.NamespacePid:
+						break
+					default:
+						logrus.Errorf("invalid namespace-in: %s", nsIn)
+						os.Exit(ExitCode_InvalidNamespace)
+					}
+				}
 			}
-			if cfg.All {
-				cfg.Proc = true
-				//cfg.Probe = true
-			}
-			if cfg.Proc {
-				pmod := modproc.NewProcModule()
-				x.AddModule(pmod)
-			}
-			if cfg.Probe {
-				// Also proc for names and meta
-				pmod := modproc.NewProcModule()
-				x.AddModule(pmod)
-				bpfmod := modebpf.NewEBPFModule()
-				x.AddModule(bpfmod)
-				encoder.AddFilter(filter.RetainOnlyEBPF)
-			}
+
 			// Execute
 			x.SetEncoder(encoder)
 			x.SetWriter(os.Stdout)
@@ -286,7 +364,14 @@ func Preloader() {
 
 	if cfg.Container {
 		if !isuid(0) {
-			logrus.Errorf("Permission denied.")
+			logrus.Errorf("Permission denied. UID=0 Required for [containers].")
+			os.Exit(ExitCode_PermissionDenied)
+		}
+	}
+
+	if cfg.Ebpf {
+		if !isuid(0) {
+			logrus.Errorf("Permission denied. UID=0 Required for [ebpf].")
 			os.Exit(ExitCode_PermissionDenied)
 		}
 	}
@@ -299,4 +384,18 @@ func isuid(check int) bool {
 	}
 	i, _ := strconv.Atoi(u.Uid)
 	return check == i
+}
+
+func userMeta() string {
+	u, _ := user.Current()
+	g, _ := user.LookupGroupId(u.Gid)
+	pid := os.Getpid()
+	var str string
+	str += fmt.Sprintf("User name  : %s\n", u.Username)
+	str += fmt.Sprintf("UID        : %s\n", u.Uid)
+	str += fmt.Sprintf("Group name : %s\n", g.Name)
+	str += fmt.Sprintf("GID        : %s\n", u.Gid)
+	str += fmt.Sprintf("Home dir   : %s\n", u.HomeDir)
+	str += fmt.Sprintf("pid        : %d\n", pid)
+	return str
 }

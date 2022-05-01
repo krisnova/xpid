@@ -113,8 +113,8 @@ type EBPFMeta struct {
 
 func ProcessPID(pid int64) *Process {
 	return &Process{
-		EBPFMeta:       EBPFMeta{},
 		ProcessVisible: ProcessVisible{},
+		EBPFMeta:       EBPFMeta{},
 		User:           User{},
 		Group:          Group{},
 		PID:            pid,
