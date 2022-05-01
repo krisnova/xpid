@@ -20,6 +20,8 @@ import (
 	"os/user"
 	"strconv"
 
+	"golang.org/x/term"
+
 	api "github.com/kris-nova/xpid/pkg/api/v1"
 )
 
@@ -47,4 +49,17 @@ func currentUser() *api.User {
 		Name: gouser.Username,
 	}
 	return u
+}
+
+func drawLine() string {
+	y, _, _ := term.GetSize(0)
+	if y == 0 {
+		return ""
+	}
+	var str string
+	for i := 0; i < y; i++ {
+		str += "="
+	}
+	str += "\n"
+	return str
 }

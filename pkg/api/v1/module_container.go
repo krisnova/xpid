@@ -85,6 +85,5 @@ func (m *ContainerModule) Execute(p *Process) error {
 	} else {
 		p.Container = false
 	}
-
 	return nil
 }

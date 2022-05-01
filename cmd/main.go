@@ -252,20 +252,36 @@ Find all pids where
 			}
 
 			// First the current user
+			fmt.Print(drawLine())
 			bytes, err := encoder.EncodeUser(currentUser())
 			if err != nil {
 				return fmt.Errorf("unable to find current user: %v", err)
 			}
 			fmt.Print(string(bytes))
+			fmt.Print(drawLine())
 
 			// Next pid one
 			pid1 := v1.ProcessPID(1)
+			pid1.ShowHeader = true
 			v1.NewProcModule().Execute(pid1)
 			v1.NewNamespaceModule().Execute(pid1)
+			bytes, err = encoder.Encode(pid1)
+			if err != nil {
+				return fmt.Errorf("unable to encode current upid: %v", err)
+			}
+			fmt.Print(string(bytes))
 
+			// Finally our pid
 			upid := v1.ProcessPID(int64(os.Getpid()))
 			v1.NewProcModule().Execute(upid)
 			v1.NewNamespaceModule().Execute(upid)
+
+			bytes, err = encoder.Encode(upid)
+			if err != nil {
+				return fmt.Errorf("unable to encode current upid: %v", err)
+			}
+			fmt.Print(string(bytes))
+			fmt.Print(drawLine())
 
 			// Filters
 			filter.PidOne = pid1

@@ -40,7 +40,6 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 	var str string
 
 	// Header
-	str += fmt.Sprintf("\n")
 
 	str += fmt.Sprintf("%-*s", len(u.Name)+3, "USER")
 	str += fmt.Sprintf("%-*s", 5, "UID")
@@ -53,7 +52,6 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 	str += fmt.Sprintf("%-*d", 5, u.ID)
 	str += fmt.Sprintf("%-*s", len(u.Group.Name)+3, u.Group.Name)
 	str += fmt.Sprintf("%-*d", 5, u.Group.ID)
-	str += fmt.Sprintf("\n")
 	str += fmt.Sprintf("\n")
 
 	return []byte(str), nil
