@@ -78,7 +78,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	var hdr string
 	if p.ShowHeader {
 		// Header
-		hdr += fmt.Sprintf("%-7s", "PID")
+		hdr += fmt.Sprintf("%-9s", "PID")
 		hdr += fmt.Sprintf("%-9s", "USER")
 		hdr += fmt.Sprintf("%-9s", "GROUP")
 		if TableFmtNS {
@@ -95,7 +95,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	str += hdr
 
 	// First line
-	str += color.YellowString(fmt.Sprintf("%-7d", p.PID))
+	str += color.YellowString(fmt.Sprintf("%-79", p.PID))
 	str += fmt.Sprintf("%-9s", p.User.Name)
 	str += fmt.Sprintf("%-9s", p.User.Group.Name)
 	if TableFmtNS {
