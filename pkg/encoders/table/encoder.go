@@ -17,7 +17,6 @@
 package table
 
 import (
-	"encoding/json"
 	"fmt"
 
 	encoder "github.com/kris-nova/xpid/pkg/encoders"
@@ -53,7 +52,6 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 	str += fmt.Sprintf("%-*d", 5, u.ID)
 	str += fmt.Sprintf("%-*s", len(u.Group.Name)+3, u.Group.Name)
 	str += fmt.Sprintf("%-*d", 5, u.Group.ID)
-
 	str += fmt.Sprintf("\n")
 
 	return []byte(str), nil
@@ -65,7 +63,21 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 			return []byte(""), fmt.Errorf(filter.Filtered)
 		}
 	}
-	return json.Marshal(p)
+
+	var str string
+
+	if p.ShowHeader {
+		// Header
+		str += fmt.Sprintf("%-*s", 5, "PID")
+		str += fmt.Sprintf("\n")
+	}
+
+	// First line
+	str += fmt.Sprintf("%-*d", 5, p.PID)
+	str += fmt.Sprintf("\n")
+
+	return []byte(str), nil
+
 }
 
 func (j *TableEncoder) AddFilter(f filter.ProcessFilter) {

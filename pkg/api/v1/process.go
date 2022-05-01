@@ -41,6 +41,10 @@ type Process struct {
 	// The process unique ID.
 	PID int64
 
+	// showHeader is used to also encode the header for runtime encoders.
+	// This should never be used by formatting encoders such as JSON or similar.
+	ShowHeader bool
+
 	// ProcessVisible is a combination of the values
 	// we get from libxpid that will determine if a process
 	// running in Linux is visible or not
