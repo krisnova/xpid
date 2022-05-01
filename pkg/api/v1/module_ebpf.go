@@ -54,11 +54,10 @@ func (m *EBPFModule) Meta() *Meta {
 
 func (m *EBPFModule) Execute(p *Process) error {
 	// Module specific (correlated)
-	result := &EBPFModule{}
 
 	procfshandle := procfs.NewProcFileSystem(procfs.Proc())
 	mounts, _ := procfshandle.ContentsPID(p.PID, "mounts")
-	result.Mounts = mounts
+	p.Mounts = mounts
 
 	e, err := NewEBPFFileSystemData()
 	if err != nil {

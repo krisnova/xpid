@@ -59,9 +59,6 @@ type AppOptions struct {
 	// Hidden will only show "hidden" pids
 	Hidden bool
 
-	// Show meta information about the user
-	User bool
-
 	// Threads will toggle showing threads in a result
 	Threads bool
 
@@ -188,12 +185,6 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 				Value:       false,
 			},
 			&cli.BoolFlag{
-				Name:        "user",
-				Aliases:     []string{"u"},
-				Destination: &cfg.User,
-				Value:       false,
-			},
-			&cli.BoolFlag{
 				Name:        "container",
 				Aliases:     []string{"c", "containers"},
 				Destination: &cfg.Container,
@@ -253,16 +244,31 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 				encoder = rawcolor
 			}
 
-			if cfg.User {
-				bytes, err := encoder.EncodeUser(currentUser())
-				if err != nil {
-					return fmt.Errorf("unable to find current user: %v", err)
-				}
-				fmt.Print(string(bytes))
-				os.Exit(0)
+			// First the current user
+			bytes, err := encoder.EncodeUser(currentUser())
+			if err != nil {
+				return fmt.Errorf("unable to find current user: %v", err)
 			}
+			fmt.Print(string(bytes))
+
+			// Next pid one
+			pid1 := v1.ProcessPID(1)
+			pid1.ShowHeader = true
+			v1.NewProcModule().Execute(pid1)
+			v1.NewNamespaceModule().Execute(pid1)
+
+			bytes, err = encoder.Encode(pid1)
+			if err != nil {
+				return fmt.Errorf("unable to find current pid 1: %v", err)
+			}
+			fmt.Print(string(bytes))
 
 			// Filters
+			filter.PidOne = pid1
+			filter.CurrentUser = currentUser()
+
+			// Todo namespace type switch
+
 			encoder.AddFilter(filter.RetainOnlyNamed)
 			if cfg.Hidden {
 				encoder.AddFilter(filter.RetainOnlyHidden)
@@ -273,6 +279,9 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 
 			// Always load "proc" module
 			x.AddModule(v1.NewProcModule())
+
+			// Always load "namespace" module
+			x.AddModule(v1.NewNamespaceModule())
 
 			// Check for EBPF
 			if cfg.Ebpf {

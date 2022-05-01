@@ -14,73 +14,24 @@
  *                                                                           *
 \*===========================================================================*/
 
-package v1
+package filter
 
 import (
-	"fmt"
-
-	"github.com/kris-nova/xpid/pkg/procfs"
+	api "github.com/kris-nova/xpid/pkg/api/v1"
 )
 
-var _ ProcessExplorerModule = &NamespaceModule{}
+var NamespaceFilterSet_Cgroup = ""
 
-const (
-
-	// Only support a few namespaces for now
-	// We can easily plumb more namespaces through
-	// as needed
-
-	NamespaceMount  string = "mnt"
-	NamespaceIPC    string = "ipc"
-	NamespaceCgroup string = "cgroup"
-	NamespacePid    string = "pid"
-	NamespaceNet    string = "net"
-	NamespaceUTS    string = "uts"
-	NamespaceTime   string = "time"
-)
-
-// [root@alice]: /proc/331236/ns># ls
-// cgroup@  mnt@  pid@               time@               user@
-// ipc@     net@  pid_for_children@  time_for_children@  uts@
-
-func NewNamespaceModule() *NamespaceModule {
-	return &NamespaceModule{}
-}
-
-func (m *NamespaceModule) Meta() *Meta {
-	return &Meta{
-		Name:        "Namespace module",
-		Description: "Search proc(5) filesystems for namespace meta.",
-		Authors: []string{
-			"Kris Nóva <kris@nivenly.com>",
-		},
+func RetainNamespaceIn_Cgroup(p *api.Process) bool {
+	if p.NamespaceModule.Cgroup == NamespaceFilterSet_Cgroup {
+		return true
 	}
+	return false
 }
 
-type NamespaceModule struct {
-	Net    string
-	PID    string
-	Cgroup string
-	IPC    string
-	Mount  string
-	UTS    string
-	Time   string
-}
-
-func (m *NamespaceModule) Execute(p *Process) error {
-	// Module specific (correlated)
-	p.NamespaceModule.Net = nsString(p.PID, NamespaceNet)
-	p.NamespaceModule.IPC = nsString(p.PID, NamespaceIPC)
-	p.NamespaceModule.PID = nsString(p.PID, NamespacePid)
-	p.NamespaceModule.Cgroup = nsString(p.PID, NamespaceCgroup)
-	p.NamespaceModule.Mount = nsString(p.PID, NamespaceMount)
-	p.NamespaceModule.UTS = nsString(p.PID, NamespaceUTS)
-	p.NamespaceModule.Time = nsString(p.PID, NamespaceTime)
-	return nil
-}
-
-func nsString(pid int64, ns string) string {
-	procfshandle := procfs.NewProcFileSystem(procfs.Proc())
-	content, _ := procfshandle.ReadlinkPID(pid, fmt.Sprintf("ns/%s", ns))
-	return content
+func RetainNamespaceOut_Cgroup(p *api.Process) bool {
+	if p.NamespaceModule.Cgroup != NamespaceFilterSet_Cgroup {
+		return true
+	}
+	return false
 }

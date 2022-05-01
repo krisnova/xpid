@@ -68,12 +68,18 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 
 	if p.ShowHeader {
 		// Header
-		str += fmt.Sprintf("%-*s", 5, "PID")
+		str += fmt.Sprintf("%-9s", "PID")
+		str += fmt.Sprintf("%-9s", "USER")
+		str += fmt.Sprintf("%-9s", "GROUP")
+		str += fmt.Sprintf("%-9s", "CMD")
 		str += fmt.Sprintf("\n")
 	}
 
 	// First line
-	str += fmt.Sprintf("%-*d", 5, p.PID)
+	str += fmt.Sprintf("%-9d", p.PID)
+	str += fmt.Sprintf("%-9s", p.User.Name)
+	str += fmt.Sprintf("%-9s", p.User.Group.Name)
+	str += fmt.Sprintf("%-9s", p.ProcModule.Comm)
 	str += fmt.Sprintf("\n")
 
 	return []byte(str), nil

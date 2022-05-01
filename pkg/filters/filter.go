@@ -22,6 +22,13 @@ const (
 	Filtered string = "filtered"
 )
 
+// Various filters will require different assertions
+// based on the runtime context which can be set below
+
+var PidOne *api.Process
+var CurrentPid *api.Process
+var CurrentUser *api.User
+
 // ProcessFilter will be an arbitrary filter that can be used to filter
 // PID data from xpid.
 //

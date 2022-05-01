@@ -86,7 +86,12 @@ func (x *ProcessExplorer) Execute() error {
 	// Main execution loops
 
 	// Safe to do pid 1 again
+	i := 0
 	for _, process := range x.processes {
+		if i == 15 {
+			process.ShowHeader = true
+			i = 0
+		}
 		for _, module := range x.modules {
 			x.ftx.Add()
 			if x.fast {
@@ -95,6 +100,7 @@ func (x *ProcessExplorer) Execute() error {
 				x.walk(process, module)
 			}
 		}
+		i++
 	}
 	for x.ftx.Cur() != 0 {
 	}
