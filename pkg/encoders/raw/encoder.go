@@ -34,13 +34,16 @@ type RawEncoder struct {
 }
 
 func (r *RawEncoder) EncodeAll(p *api.Process) ([]byte, error) {
-	//TODO implement me
-	panic("implement me")
+	return r.Encode(p)
 }
 
 func (r *RawEncoder) EncodeUser(u *api.User) ([]byte, error) {
-	//TODO implement me
-	panic("implement me")
+	str := fmt.Sprintf("\n[%s] %d [%s] %d\n\n",
+		u.Name,
+		u.ID,
+		u.Group.Name,
+		u.Group.ID)
+	return []byte(str), nil
 }
 
 type Formatter func(p *api.Process) string
