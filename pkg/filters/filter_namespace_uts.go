@@ -30,6 +30,9 @@ func RetainNamespaceIn_UTS(p *api.Process) bool {
 }
 
 func RetainNamespaceOut_UTS(p *api.Process) bool {
+	if p.NamespaceModule.Cgroup == "" {
+		return false
+	}
 	if p.NamespaceModule.UTS != NamespaceFilterSet_UTS {
 		return true
 	}

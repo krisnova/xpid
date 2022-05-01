@@ -30,6 +30,9 @@ func RetainNamespaceIn_Time(p *api.Process) bool {
 }
 
 func RetainNamespaceOut_Time(p *api.Process) bool {
+	if p.NamespaceModule.Time == "" {
+		return false
+	}
 	if p.NamespaceModule.Time != NamespaceFilterSet_Time {
 		return true
 	}

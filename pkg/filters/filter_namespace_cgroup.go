@@ -30,6 +30,9 @@ func RetainNamespaceIn_Cgroup(p *api.Process) bool {
 }
 
 func RetainNamespaceOut_Cgroup(p *api.Process) bool {
+	if p.NamespaceModule.Cgroup == "" {
+		return false
+	}
 	if p.NamespaceModule.Cgroup != NamespaceFilterSet_Cgroup {
 		return true
 	}

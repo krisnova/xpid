@@ -38,6 +38,9 @@ func RetainNamespaceIn_Mount(p *api.Process) bool {
 }
 
 func RetainNamespaceOut_Mount(p *api.Process) bool {
+	if p.NamespaceModule.Mount == "" {
+		return false
+	}
 	if p.NamespaceModule.Mount != NamespaceFilterSet_Mount {
 		return true
 	}

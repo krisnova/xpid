@@ -30,6 +30,9 @@ func RetainNamespaceIn_IPC(p *api.Process) bool {
 }
 
 func RetainNamespaceOut_IPC(p *api.Process) bool {
+	if p.NamespaceModule.IPC == "" {
+		return false
+	}
 	if p.NamespaceModule.IPC != NamespaceFilterSet_IPC {
 		return true
 	}

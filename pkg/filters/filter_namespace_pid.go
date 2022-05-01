@@ -30,6 +30,9 @@ func RetainNamespaceIn_PID(p *api.Process) bool {
 }
 
 func RetainNamespaceOut_PID(p *api.Process) bool {
+	if p.NamespaceModule.PID == "" {
+		return false
+	}
 	if p.NamespaceModule.PID != NamespaceFilterSet_PID {
 		return true
 	}

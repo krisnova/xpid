@@ -30,6 +30,9 @@ func RetainNamespaceIn_Net(p *api.Process) bool {
 }
 
 func RetainNamespaceOut_Net(p *api.Process) bool {
+	if p.NamespaceModule.Net == "" {
+		return false
+	}
 	if p.NamespaceModule.Net != NamespaceFilterSet_Net {
 		return true
 	}

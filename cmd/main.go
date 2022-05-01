@@ -257,17 +257,9 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 			v1.NewProcModule().Execute(pid1)
 			v1.NewNamespaceModule().Execute(pid1)
 
-			bytes, err = encoder.Encode(pid1)
-			if err != nil {
-				return fmt.Errorf("unable to find current pid 1: %v", err)
-			}
-			fmt.Print(string(bytes))
-
 			// Filters
 			filter.PidOne = pid1
 			filter.CurrentUser = currentUser()
-
-			// Todo namespace type switch
 
 			encoder.AddFilter(filter.RetainOnlyNamed)
 			if cfg.Hidden {
@@ -296,19 +288,29 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 			}
 
 			// Namespace [Out]
-			nsOuts := cfg.NamespaceOut.Value()
-			if len(nsOuts) > 0 {
-				for _, nsIn := range nsOuts {
+			nsIns := cfg.NamespaceIn.Value()
+			if len(nsIns) > 0 {
+				for _, nsIn := range nsIns {
 					switch nsIn {
 					case v1.NamespaceMount:
+						filter.NamespaceFilterSet_Mount = pid1.NamespaceModule.Mount
+						encoder.AddFilter(filter.RetainNamespaceIn_Mount)
 						break
 					case v1.NamespaceIPC:
+						filter.NamespaceFilterSet_IPC = pid1.NamespaceModule.IPC
+						encoder.AddFilter(filter.RetainNamespaceIn_IPC)
 						break
 					case v1.NamespaceNet:
+						filter.NamespaceFilterSet_Net = pid1.NamespaceModule.Net
+						encoder.AddFilter(filter.RetainNamespaceIn_Net)
 						break
 					case v1.NamespaceCgroup:
+						filter.NamespaceFilterSet_Cgroup = pid1.NamespaceModule.Cgroup
+						encoder.AddFilter(filter.RetainNamespaceIn_Cgroup)
 						break
 					case v1.NamespacePid:
+						filter.NamespaceFilterSet_PID = pid1.NamespaceModule.PID
+						encoder.AddFilter(filter.RetainNamespaceIn_PID)
 						break
 					default:
 						logrus.Errorf("invalid namespace-in: %s", nsIn)
@@ -317,23 +319,34 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 				}
 			}
 
-			// Namespace [In]
-			nsIns := cfg.NamespaceIn.Value()
-			if len(nsIns) > 0 {
-				for _, nsIn := range nsIns {
-					switch nsIn {
+			// Namespace [Out]
+			nsOuts := cfg.NamespaceOut.Value()
+			if len(nsOuts) > 0 {
+				for _, nsOut := range nsOuts {
+					switch nsOut {
+
 					case v1.NamespaceMount:
+						filter.NamespaceFilterSet_Mount = pid1.NamespaceModule.Mount
+						encoder.AddFilter(filter.RetainNamespaceOut_Mount)
 						break
 					case v1.NamespaceIPC:
+						filter.NamespaceFilterSet_IPC = pid1.NamespaceModule.IPC
+						encoder.AddFilter(filter.RetainNamespaceOut_IPC)
 						break
 					case v1.NamespaceNet:
+						filter.NamespaceFilterSet_Net = pid1.NamespaceModule.Net
+						encoder.AddFilter(filter.RetainNamespaceOut_Net)
 						break
 					case v1.NamespaceCgroup:
+						filter.NamespaceFilterSet_Cgroup = pid1.NamespaceModule.Cgroup
+						encoder.AddFilter(filter.RetainNamespaceOut_Cgroup)
 						break
 					case v1.NamespacePid:
+						filter.NamespaceFilterSet_PID = pid1.NamespaceModule.PID
+						encoder.AddFilter(filter.RetainNamespaceOut_PID)
 						break
 					default:
-						logrus.Errorf("invalid namespace-in: %s", nsIn)
+						logrus.Errorf("invalid namespace-in: %s", nsOut)
 						os.Exit(ExitCode_InvalidNamespace)
 					}
 				}

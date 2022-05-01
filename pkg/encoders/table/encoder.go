@@ -75,7 +75,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 		str += fmt.Sprintf("%-9s", "USER")
 		str += fmt.Sprintf("%-9s", "GROUP")
 		str += fmt.Sprintf("%-9s", "CMD")
-		str += fmt.Sprintf("%-12s", "NSPID")     // Compute
+		str += fmt.Sprintf("%-12s", "NS-PID")    // Compute
 		str += fmt.Sprintf("%-12s", "NS-CGROUP") // Compute
 		str += fmt.Sprintf("%-12s", "NS-NET")    // Network
 		str += fmt.Sprintf("%-12s", "NS-MNT")    // Storage
