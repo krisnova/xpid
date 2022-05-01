@@ -131,8 +131,6 @@ Find all processes between specific values
 Find all "hidden" processes on a system
 	# Looks for chdir, opendir, and dent in /proc
 	xpid -x <pid-query>
-
-Find all pids where
 `,
 		Commands: []*cli.Command{
 			&cli.Command{},
