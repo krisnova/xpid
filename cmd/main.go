@@ -68,16 +68,11 @@ type AppOptions struct {
 	// Containers
 	Container bool
 
-	// Namespace flags can be used to filter on pids that are in/out of the
-	// current namespace context.
-	//
-	// For example if the user was running in a given mount namespace and
-	// wanted to list all pids in the same mount namespace they would use
-	// 	xpid --ns-in mount
-	//
 	// Available namespaces: mnt, pid, net, ipc, cgroup
-	NamespaceIn  cli.StringSlice
-	NamespaceOut cli.StringSlice
+	NamespaceInPid1  cli.StringSlice
+	NamespaceOutPid1 cli.StringSlice
+	NamespaceInUser  cli.StringSlice
+	NamespaceOutUser cli.StringSlice
 }
 
 const (
@@ -107,16 +102,23 @@ func main() {
 		Usage:     "Linux Process Discovery. Like nmap, but for pids.",
 		UsageText: `xpid [flags] -o [output] <query>
 
-Investigate pid 123 and write the report to out.txt
-	xpid 123 > out.txt
+Investigate all pids
+	xpid
 
-Find all container processes on a system 
-	# Looks for /proc/[pid]/ns/cgroup != /proc/1/ns/cgroup 
-	xpid -c <query>
+Investigate pid 1
+	xpid 1
 
-Find all processes running with eBPF programs at runtime.
-	# Looks for /proc/[pid]/fdinfo and correlates to /sys/fs/bpf
-	xpid --ebpf <query>
+Investigate pids 1-10 in table view
+	xpid -o table 1-10
+
+Find all container processes on a system
+	xpid -c
+
+Find all container processes between pids 100-200
+	xpid -c -o table 100-200
+
+Find all processes running with eBPF programs as JSON
+	xpid --ebpf -o json <pid-query>
 
 Find all processes between specific values
 	xpid <flags> +100      # Search pids up to 100
@@ -125,14 +127,9 @@ Find all processes between specific values
 
 Find all "hidden" processes on a system
 	# Looks for chdir, opendir, and dent in /proc
-	xpid -x <query>
+	xpid -x <pid-query>
 
-Find all possible pids on a system, and investigate each one (slow).
-	xpid > out.txt 
-
-Investigate all pids from 0 to 1000 and write the report to out.json
-	xpid -o json 0-1000 > out.json
-
+Find all pids where
 `,
 		Commands: []*cli.Command{
 			&cli.Command{},
@@ -150,15 +147,25 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 			},
 			&cli.StringSliceFlag{
 				Name:        "ns-in",
-				Aliases:     []string{"namespace-in", "N"},
-				Destination: &cfg.NamespaceIn,
-				Usage:       "Return only pids in [mnt, net, pid, ipc, cgroup] namespace that matches the user.",
+				Aliases:     []string{"N"},
+				Destination: &cfg.NamespaceInPid1,
+				Usage:       "Return only pids in [mnt, net, pid, ipc, cgroup] namespace that matches pid 1.",
 			},
 			&cli.StringSliceFlag{
 				Name:        "ns-out",
-				Aliases:     []string{"namespace-out", "O"},
-				Destination: &cfg.NamespaceOut,
-				Usage:       "Reject pids from [mnt, net, pid, ipc, cgroup] namespace that matches the user.",
+				Aliases:     []string{"O"},
+				Destination: &cfg.NamespaceOutPid1,
+				Usage:       "Reject pids from [mnt, net, pid, ipc, cgroup] namespace that matches pid 1.",
+			},
+			&cli.StringSliceFlag{
+				Name:        "ns-in-user",
+				Destination: &cfg.NamespaceInPid1,
+				Usage:       "Return only pids in [mnt, net, pid, ipc, cgroup] namespace that matches current user.",
+			},
+			&cli.StringSliceFlag{
+				Name:        "ns-out-user",
+				Destination: &cfg.NamespaceOutPid1,
+				Usage:       "Reject pids from [mnt, net, pid, ipc, cgroup] namespace that current user.",
 			},
 			&cli.BoolFlag{
 				Name:        "fast",
@@ -253,9 +260,12 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 
 			// Next pid one
 			pid1 := v1.ProcessPID(1)
-			pid1.ShowHeader = true
 			v1.NewProcModule().Execute(pid1)
 			v1.NewNamespaceModule().Execute(pid1)
+
+			upid := v1.ProcessPID(int64(os.Getpid()))
+			v1.NewProcModule().Execute(upid)
+			v1.NewNamespaceModule().Execute(upid)
 
 			// Filters
 			filter.PidOne = pid1
@@ -287,8 +297,8 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 				encoder.AddFilter(filter.RetainOnlyContainers)
 			}
 
-			// Namespace [Out]
-			nsIns := cfg.NamespaceIn.Value()
+			// Namespace in Pid 1
+			nsIns := cfg.NamespaceInPid1.Value()
 			if len(nsIns) > 0 {
 				for _, nsIn := range nsIns {
 					switch nsIn {
@@ -319,8 +329,40 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 				}
 			}
 
-			// Namespace [Out]
-			nsOuts := cfg.NamespaceOut.Value()
+			// Namespace in User
+			nsInsU := cfg.NamespaceInUser.Value()
+			if len(nsInsU) > 0 {
+				for _, nsIn := range nsInsU {
+					switch nsIn {
+					case v1.NamespaceMount:
+						filter.NamespaceFilterSet_Mount = upid.NamespaceModule.Mount
+						encoder.AddFilter(filter.RetainNamespaceIn_Mount)
+						break
+					case v1.NamespaceIPC:
+						filter.NamespaceFilterSet_IPC = upid.NamespaceModule.IPC
+						encoder.AddFilter(filter.RetainNamespaceIn_IPC)
+						break
+					case v1.NamespaceNet:
+						filter.NamespaceFilterSet_Net = upid.NamespaceModule.Net
+						encoder.AddFilter(filter.RetainNamespaceIn_Net)
+						break
+					case v1.NamespaceCgroup:
+						filter.NamespaceFilterSet_Cgroup = upid.NamespaceModule.Cgroup
+						encoder.AddFilter(filter.RetainNamespaceIn_Cgroup)
+						break
+					case v1.NamespacePid:
+						filter.NamespaceFilterSet_PID = upid.NamespaceModule.PID
+						encoder.AddFilter(filter.RetainNamespaceIn_PID)
+						break
+					default:
+						logrus.Errorf("invalid namespace-in-user: %s", nsIn)
+						os.Exit(ExitCode_InvalidNamespace)
+					}
+				}
+			}
+
+			// Namespace out Pid 1
+			nsOuts := cfg.NamespaceOutPid1.Value()
 			if len(nsOuts) > 0 {
 				for _, nsOut := range nsOuts {
 					switch nsOut {
@@ -346,7 +388,40 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 						encoder.AddFilter(filter.RetainNamespaceOut_PID)
 						break
 					default:
-						logrus.Errorf("invalid namespace-in: %s", nsOut)
+						logrus.Errorf("invalid namespace-out: %s", nsOut)
+						os.Exit(ExitCode_InvalidNamespace)
+					}
+				}
+			}
+
+			// Namespace out User
+			nsOutsU := cfg.NamespaceOutUser.Value()
+			if len(nsOutsU) > 0 {
+				for _, nsOut := range nsOutsU {
+					switch nsOut {
+
+					case v1.NamespaceMount:
+						filter.NamespaceFilterSet_Mount = upid.NamespaceModule.Mount
+						encoder.AddFilter(filter.RetainNamespaceOut_Mount)
+						break
+					case v1.NamespaceIPC:
+						filter.NamespaceFilterSet_IPC = upid.NamespaceModule.IPC
+						encoder.AddFilter(filter.RetainNamespaceOut_IPC)
+						break
+					case v1.NamespaceNet:
+						filter.NamespaceFilterSet_Net = upid.NamespaceModule.Net
+						encoder.AddFilter(filter.RetainNamespaceOut_Net)
+						break
+					case v1.NamespaceCgroup:
+						filter.NamespaceFilterSet_Cgroup = upid.NamespaceModule.Cgroup
+						encoder.AddFilter(filter.RetainNamespaceOut_Cgroup)
+						break
+					case v1.NamespacePid:
+						filter.NamespaceFilterSet_PID = upid.NamespaceModule.PID
+						encoder.AddFilter(filter.RetainNamespaceOut_PID)
+						break
+					default:
+						logrus.Errorf("invalid namespace-out-user: %s", nsOut)
 						os.Exit(ExitCode_InvalidNamespace)
 					}
 				}

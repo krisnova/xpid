@@ -33,8 +33,7 @@ type TableEncoder struct {
 }
 
 func (j *TableEncoder) EncodeAll(p *api.Process) ([]byte, error) {
-	//TODO implement me
-	panic("implement me")
+	return j.Encode(p)
 }
 
 func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
@@ -60,6 +59,10 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 	return []byte(str), nil
 }
 
+var (
+	TableFmtNS bool = true
+)
+
 func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	for _, f := range j.filters {
 		if !f(p) {
@@ -71,26 +74,30 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 
 	if p.ShowHeader {
 		// Header
-		str += fmt.Sprintf("%-6s", "PID")
+		str += fmt.Sprintf("%-7s", "PID")
 		str += fmt.Sprintf("%-9s", "USER")
 		str += fmt.Sprintf("%-9s", "GROUP")
-		str += fmt.Sprintf("%-9s", "CMD")
-		str += fmt.Sprintf("%-12s", "NS-PID")    // Compute
-		str += fmt.Sprintf("%-12s", "NS-CGROUP") // Compute
-		str += fmt.Sprintf("%-12s", "NS-NET")    // Network
-		str += fmt.Sprintf("%-12s", "NS-MNT")    // Storage
+		if TableFmtNS {
+			str += fmt.Sprintf("%-12s", "NS-PID")    // Compute
+			str += fmt.Sprintf("%-12s", "NS-CGROUP") // Compute
+			str += fmt.Sprintf("%-12s", "NS-NET")    // Network
+			str += fmt.Sprintf("%-12s", "NS-MNT")    // Storage\
+		}
+		str += fmt.Sprintf("%-16s", "CMD")
 		str += fmt.Sprintf("\n")
 	}
 
 	// First line
-	str += fmt.Sprintf("%-6d", p.PID)
+	str += fmt.Sprintf("%-7d", p.PID)
 	str += fmt.Sprintf("%-9s", p.User.Name)
 	str += fmt.Sprintf("%-9s", p.User.Group.Name)
-	str += fmt.Sprintf("%-9s", p.ProcModule.Comm)
-	str += fmt.Sprintf("%-12s", p.NamespaceModule.PID)
-	str += fmt.Sprintf("%-12s", p.NamespaceModule.Cgroup)
-	str += fmt.Sprintf("%-12s", p.NamespaceModule.Net)
-	str += fmt.Sprintf("%-12s", p.NamespaceModule.Mount)
+	if TableFmtNS {
+		str += fmt.Sprintf("%-12s", p.NamespaceModule.PID)
+		str += fmt.Sprintf("%-12s", p.NamespaceModule.Cgroup)
+		str += fmt.Sprintf("%-12s", p.NamespaceModule.Net)
+		str += fmt.Sprintf("%-12s", p.NamespaceModule.Mount)
+	}
+	str += fmt.Sprintf("%-16s", p.ProcModule.Comm)
 	str += fmt.Sprintf("\n")
 
 	return []byte(str), nil

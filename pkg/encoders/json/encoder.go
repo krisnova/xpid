@@ -34,13 +34,11 @@ type JSONEncoder struct {
 }
 
 func (j *JSONEncoder) EncodeAll(p *api.Process) ([]byte, error) {
-	//TODO implement me
-	panic("implement me")
+	return j.Encode(p)
 }
 
 func (j *JSONEncoder) EncodeUser(u *api.User) ([]byte, error) {
-	//TODO implement me
-	panic("implement me")
+	return json.Marshal(u)
 }
 
 func (j *JSONEncoder) Encode(p *api.Process) ([]byte, error) {
