@@ -104,8 +104,8 @@ func (m *ProcModule) Execute(p *Process) error {
 
 	p.User.ID = result.UID
 	p.User.Name = result.Username
-	p.Group.ID = result.GID
-	p.Group.Name = result.Groupname
+	p.User.Group.ID = result.GID
+	p.User.Group.Name = result.Groupname
 
 	return nil
 }

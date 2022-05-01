@@ -16,6 +16,8 @@
 
 package v1
 
+import "os/user"
+
 // arch_status      cpu_resctrl_groups  latency     net/           root@         statm
 // attr/            cpuset              limits      ns/            sched         status
 // autogroup        cwd@                loginuid    numa_maps      schedstat     syscall
@@ -36,16 +38,18 @@ package v1
 // of the xpid library, and the xpid API.
 type Process struct {
 
+	// The process unique ID.
+	PID int64
+
 	// ProcessVisible is a combination of the values
 	// we get from libxpid that will determine if a process
 	// running in Linux is visible or not
 	ProcessVisible
 
 	// User is the user associated with the process
+	//
+	// Group is a subset of User
 	User
-
-	// Group is the group associated with the process
-	Group
 
 	// Name (proc/[pid]/comm)
 	// This file exposes the process's comm value—that is, the
@@ -77,12 +81,20 @@ type Process struct {
 	// Reading from /proc/[pid]/status
 	Thread bool
 
-	// The process unique ID.
-	PID int64
+	// Modules are embedded directly here
+
+	EBPFModule
+	ProcModule
+	ContainerModule
+	NamespaceModule
 }
 
 // User is a user from the filesystem
+// This can be populated from process details, or from
+// the current user context.
 type User struct {
+	user.User
+	Group
 	ID   int
 	Name string
 }
@@ -115,10 +127,12 @@ type ProcessVisible struct {
 
 func ProcessPID(pid int64) *Process {
 	return &Process{
-		ProcessVisible: ProcessVisible{},
-		EBPFMeta:       EBPFMeta{},
-		User:           User{},
-		Group:          Group{},
-		PID:            pid,
+		ProcessVisible:  ProcessVisible{},
+		User:            User{},
+		PID:             pid,
+		EBPFModule:      EBPFModule{},
+		ProcModule:      ProcModule{},
+		ContainerModule: ContainerModule{},
+		NamespaceModule: NamespaceModule{},
 	}
 }

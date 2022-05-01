@@ -24,10 +24,10 @@ var _ ProcessFilter = RetainOnlyHidden
 
 // RetainOnlyHidden will only keep "hidden" PIDs
 func RetainOnlyHidden(p *api.Process) bool {
-	if p.Opendir != p.Dent {
+	if p.ProcessVisible.Opendir != p.ProcessVisible.Dent {
 		return true
 	}
-	if p.Chdir != p.Dent {
+	if p.ProcessVisible.Chdir != p.ProcessVisible.Dent {
 		return true
 	}
 	return false

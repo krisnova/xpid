@@ -36,8 +36,8 @@ func ColorFormatter(p *api.Process) string {
 		pidColor.Sprintf("%d", p.PID),
 		ugColor.Sprintf("%s", p.User.Name),
 		ugColor.Sprintf("%d", p.User.ID),
-		ugColor.Sprintf("%s", p.Group.Name),
-		ugColor.Sprintf("%d", p.Group.ID),
+		ugColor.Sprintf("%s", p.User.Group.Name),
+		ugColor.Sprintf("%d", p.User.Group.ID),
 		color.GreenString("%s", p.Name),
 		cliColor.Sprintf("%s", p.CommandLine))
 }

@@ -29,15 +29,12 @@ var _ ProcessExplorerModule = &EBPFModule{}
 
 type EBPFModule struct {
 	Mounts string
+	Progs  []string
+	Maps   []string
 }
 
 func NewEBPFModule() *EBPFModule {
 	return &EBPFModule{}
-}
-
-type EBPFMeta struct {
-	Progs []string
-	Maps  []string
 }
 
 const (
@@ -90,7 +87,7 @@ func (m *EBPFModule) Execute(p *Process) error {
 			if id == ebpfProgID {
 				// We have mapped an eBPF program to a PID!
 				p.EBPF = true
-				p.EBPFMeta.Progs = append(p.EBPFMeta.Progs, mp.Name)
+				p.EBPFModule.Progs = append(p.EBPFModule.Progs, mp.Name)
 			}
 		}
 	}

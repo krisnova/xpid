@@ -19,9 +19,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/user"
-	"strconv"
 	"time"
+
+	"github.com/kris-nova/xpid/pkg/encoders/table"
 
 	"github.com/kris-nova/xpid/pkg/encoders/raw"
 
@@ -214,11 +214,6 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 		Action: func(c *cli.Context) error {
 			var pids []*v1.Process
 
-			if cfg.User {
-				fmt.Print(userMeta())
-				os.Exit(0)
-			}
-
 			query := c.Args().Get(0)
 			if query == "" {
 				max := procx.MaxPid()
@@ -245,6 +240,9 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 			case "json":
 				encoder = json.NewJSONEncoder()
 				break
+			case "table":
+				encoder = table.NewTableEncoder()
+				break
 			case "raw":
 				encoder = raw.NewRawEncoder()
 				break
@@ -253,6 +251,15 @@ Investigate all pids from 0 to 1000 and write the report to out.json
 				rawcolor := raw.NewRawEncoder()
 				rawcolor.SetFormat(raw.ColorFormatter)
 				encoder = rawcolor
+			}
+
+			if cfg.User {
+				bytes, err := encoder.EncodeUser(currentUser())
+				if err != nil {
+					return fmt.Errorf("unable to find current user: %v", err)
+				}
+				fmt.Print(string(bytes))
+				os.Exit(0)
 			}
 
 			// Filters
@@ -360,27 +367,4 @@ func Preloader() {
 			os.Exit(ExitCode_PermissionDenied)
 		}
 	}
-}
-
-func isuid(check int) bool {
-	u, _ := user.Current()
-	if u == nil {
-		return false
-	}
-	i, _ := strconv.Atoi(u.Uid)
-	return check == i
-}
-
-func userMeta() string {
-	u, _ := user.Current()
-	g, _ := user.LookupGroupId(u.Gid)
-	pid := os.Getpid()
-	var str string
-	str += fmt.Sprintf("User name  : %s\n", u.Username)
-	str += fmt.Sprintf("UID        : %s\n", u.Uid)
-	str += fmt.Sprintf("Group name : %s\n", g.Name)
-	str += fmt.Sprintf("GID        : %s\n", u.Gid)
-	str += fmt.Sprintf("Home dir   : %s\n", u.HomeDir)
-	str += fmt.Sprintf("pid        : %d\n", pid)
-	return str
 }
