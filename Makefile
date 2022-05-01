@@ -57,7 +57,7 @@ format: ## Format the code
 	clang-format -i -style=$(cstyle) libxpid/src/*.c
 
 dev: libxpid libxpid-install compile install ## Complete development build and install of xpid from source
-	echo " -> Built"
+	@echo " -> Built"
 
 .PHONY: libxpid
 libxpid: libxpid-clean ## Compile and install libxpid
