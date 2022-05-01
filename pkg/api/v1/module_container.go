@@ -25,8 +25,8 @@ import (
 var _ ProcessExplorerModule = &ContainerModule{}
 
 type ContainerModule struct {
-	// NamespaceCgroupLink /proc/[pid]/ns/@cgroup
-	NamespaceCgroupLink string
+	cgroupNamespace       string
+	CgroupNamespaceUnique bool
 }
 
 func NewContainerModule() *ContainerModule {
@@ -54,16 +54,20 @@ func (m *ContainerModule) Execute(p *Process) error {
 
 	procfshandle := procfs.NewProcFileSystem(procfs.Proc())
 	nscgroup, _ := procfshandle.ReadlinkPID(p.PID, "ns/cgroup")
-	result.NamespaceCgroupLink = nscgroup
+	m.cgroupNamespace = nscgroup
 
 	// If it's pid 1  we can just move on, there is nothing to compare
 	if p.PID == 1 {
 		p.Container = false
 		pidone = result
+		pidone.cgroupNamespace = nscgroup
 		return nil
 	}
 	if pidone == nil {
 		return fmt.Errorf("pid one not initialized")
+	}
+	if pidone.cgroupNamespace == "" {
+		return fmt.Errorf("pid one empty cgroup namespace")
 	}
 
 	// Research:
@@ -75,9 +79,11 @@ func (m *ContainerModule) Execute(p *Process) error {
 	// For us to call something "a container" it basically needs to have
 	// a unique ns/cgroup link that is different from the pid 1 in the
 	// current pid namespace.
-	if nscgroup != pidone.NamespaceCgroupLink {
+	if m.cgroupNamespace != "" && m.cgroupNamespace != pidone.cgroupNamespace {
 		// We found a container
 		p.Container = true
+	} else {
+		p.Container = false
 	}
 
 	return nil
