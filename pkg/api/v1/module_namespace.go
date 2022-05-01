@@ -18,6 +18,7 @@ package v1
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/kris-nova/xpid/pkg/procfs"
 )
@@ -82,5 +83,15 @@ func (m *NamespaceModule) Execute(p *Process) error {
 func nsString(pid int64, ns string) string {
 	procfshandle := procfs.NewProcFileSystem(procfs.Proc())
 	content, _ := procfshandle.ReadlinkPID(pid, fmt.Sprintf("ns/%s", ns))
-	return content
+	if content == "" {
+		return content
+	}
+	spl := strings.Split(content, ":")
+	if len(spl) < 2 {
+		return content
+	}
+	nsBracket := spl[1]
+	nsBracket = strings.Replace(nsBracket, "[", "", 1)
+	nsBracket = strings.Replace(nsBracket, "]", "", 1)
+	return strings.TrimSpace(nsBracket)
 }
