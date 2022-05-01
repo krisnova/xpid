@@ -89,13 +89,13 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 		}
 		hdr += fmt.Sprintf("%-16s", "CMD")
 		hdr += fmt.Sprintf("\n")
+		hdrColor := color.New(color.FgGreen)
+		hdr = hdrColor.Sprintf(hdr)
+		str += hdr
 	}
-	hdrColor := color.New(color.FgGreen)
-	hdr = hdrColor.Sprintf(hdr)
-	str += hdr
 
 	// First line
-	str += color.YellowString(fmt.Sprintf("%-79", p.PID))
+	str += color.YellowString(fmt.Sprintf("%-9d", p.PID))
 	str += fmt.Sprintf("%-9s", p.User.Name)
 	str += fmt.Sprintf("%-9s", p.User.Group.Name)
 	if TableFmtNS {
