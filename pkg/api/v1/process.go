@@ -35,9 +35,16 @@ package v1
 // This data structure and the logic that populates it will be a substantial part
 // of the xpid library, and the xpid API.
 type Process struct {
+
+	// ProcessVisible is a combination of the values
+	// we get from libxpid that will determine if a process
+	// running in Linux is visible or not
 	ProcessVisible
-	EBPFMeta
+
+	// User is the user associated with the process
 	User
+
+	// Group is the group associated with the process
 	Group
 
 	// Name (proc/[pid]/comm)
@@ -104,13 +111,6 @@ type ProcessVisible struct {
 	// In this case /proc is typically opened, and then the pid directories are
 	// matched against!
 	Dent int
-}
-
-// Todo refactor this to module_ebpf.go
-
-type EBPFMeta struct {
-	Progs []string
-	Maps  []string
 }
 
 func ProcessPID(pid int64) *Process {

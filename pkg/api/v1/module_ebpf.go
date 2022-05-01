@@ -35,6 +35,11 @@ func NewEBPFModule() *EBPFModule {
 	return &EBPFModule{}
 }
 
+type EBPFMeta struct {
+	Progs []string
+	Maps  []string
+}
+
 const (
 	EBPFFullMount  string = "bpf /sys/fs/bpf bpf"
 	EBPFSYSFSMount string = "/sys/fs/bpf"
