@@ -79,8 +79,8 @@ libxpid-clean: ## Clean libxpid
 purge: ## WARNING This is a dangerous command that will purge all potential xpid artifacts from your system (As root!)
 	rm -vf /usr/include/*xpid*
 	rm -vf /usr/lib/*xpid*
-	rm -vf /usr/include/*xpid*
-	rm -vf /usr/lib/*xpid*
+	rm -vf /usr/local/include/*xpid*
+	rm -vf /usr/local/lib/*xpid*
 
 .PHONY: libxpid-install
 libxpid-install: ## Install libxpid
