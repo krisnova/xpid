@@ -24,8 +24,8 @@ Investigate pids 1-10 in table view
 Find all container processes on a system
   xpid -c
 
-Find all container processes between pids 100-200
-  xpid -c -o table 100-200
+Find all container processes between pids 100-200 in the color formatter
+  xpid -c -o color 100-200
 
 Find all processes running with eBPF programs as JSON
   xpid --ebpf -o json <pid-query>
