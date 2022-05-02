@@ -1,4 +1,5 @@
 # Maintainer: Kris Nóva <kris@nivenly.com>
+# Example full package: xpid-v1.1.1-1
 
 pkgbase=xpid
 pkgname=(xpid)
@@ -17,6 +18,7 @@ source=("git+https://github.com/kris-nova/xpid.git#tag=$pkgver")
 sha256sums=('SKIP')
 
 build() {
+    depends=(libxpid-$pkgver)
 	cd $pkgname
 	GO111MODULE=on
 	go mod vendor
