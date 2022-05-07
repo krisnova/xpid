@@ -23,6 +23,7 @@ import (
 var _ ProcessFilter = RejectThreads
 
 func RejectThreads(p *api.Process) bool {
+	// Future Logic Here
 	if p.Thread {
 		return false
 	}
