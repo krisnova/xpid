@@ -16,7 +16,7 @@
 
 default: compile
 
-version     =  1.2.0
+version     =  1.2.1
 target      =  xpid
 org         =  kris-nova
 authorname  =  Kris Nóva
