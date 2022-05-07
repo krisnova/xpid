@@ -76,6 +76,8 @@ type AppOptions struct {
 
 	// TableFormatters
 	ShowTableNamespaces bool
+
+	ProcListing bool
 }
 
 const (
@@ -145,6 +147,11 @@ Find all "hidden" processes on a system
 				Name:        "output",
 				Aliases:     []string{"o", "out"},
 				Destination: &cfg.Output,
+			},
+			&cli.BoolFlag{
+				Name:        "proc",
+				Aliases:     []string{"p", "pl", "proc-listing"},
+				Destination: &cfg.ProcListing,
 			},
 			&cli.StringSliceFlag{
 				Name:        "ns-in",
@@ -227,9 +234,13 @@ Find all "hidden" processes on a system
 				}
 				query = fmt.Sprintf("1-%d", max)
 			}
-
 			// Initialize the explorer based on flags
-			pids = procx.PIDQuery(query)
+			if cfg.ProcListing {
+				pids = procx.ProcListingQuery(query)
+			} else {
+				pids = procx.PIDQuery(query)
+			}
+
 			if pids == nil {
 				return fmt.Errorf("invalid pid query: %s", query)
 			}
