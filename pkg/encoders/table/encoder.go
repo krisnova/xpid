@@ -139,7 +139,6 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 			}
 			n = true
 		}
-		drawLine("-")
 	}
 	str += color.CyanString(fmt.Sprintf("%-16s", p.ProcModule.Comm))
 	str += fmt.Sprintf("\n")
@@ -168,7 +167,7 @@ func drawLine(ch string) string {
 	lc := color.New(color.Bold, color.FgGreen)
 	var str string
 	for i := 0; i < y; i++ {
-		str += lc.Sprintf(ch)
+		str += lc.Sprintf("%s", ch)
 	}
 	str += "\n"
 	return str
