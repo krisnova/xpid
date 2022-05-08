@@ -103,7 +103,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	str += fmt.Sprintf("%-9s", p.User.Name)
 	str += fmt.Sprintf("%-9s", p.User.Group.Name)
 	str += color.CyanString(fmt.Sprintf("%-16s", p.ProcModule.Comm))
-	x = x + 34
+	x = x + 43
 	if TableFmtNS {
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.PID)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Cgroup)
