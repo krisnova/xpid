@@ -141,7 +141,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 			}
 			n = true
 		}
-		if l < 0 {
+		if l > 0 {
 			str += drawLine("-")
 		}
 	}
