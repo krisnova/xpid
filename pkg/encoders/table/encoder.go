@@ -125,9 +125,10 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 		for i := 0; i < l; i++ {
 			if n {
 				//str += fmt.Sprintf("%-*s", x, "")
-				for j := 0; j < x; j++ {
+				for j := 0; j < x-2; j++ {
 					str += "-"
 				}
+				str += "  "
 			}
 			if lm >= i+1 {
 				str += fmt.Sprintf("%-16s", p.EBPFModule.Maps[i])
