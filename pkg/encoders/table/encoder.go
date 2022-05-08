@@ -80,7 +80,6 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 		hdr += fmt.Sprintf("%-9s", "PID")
 		hdr += fmt.Sprintf("%-9s", "USER")
 		hdr += fmt.Sprintf("%-9s", "GROUP")
-		hdr += fmt.Sprintf("%-16s", "CMD")
 		if TableFmtNS {
 			hdr += fmt.Sprintf("%-12s", "NS-PID")    // Compute
 			hdr += fmt.Sprintf("%-12s", "NS-CGROUP") // Compute
@@ -91,6 +90,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 			hdr += fmt.Sprintf("%-16s", "BPF-MAP")
 			hdr += fmt.Sprintf("%-16s", "BPF-PROG")
 		}
+		hdr += fmt.Sprintf("%-16s", "CMD")
 		hdr += fmt.Sprintf("\n")
 		hdrColor := color.New(color.FgGreen)
 		hdr = hdrColor.Sprintf(hdr)
@@ -102,8 +102,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	str += color.YellowString(fmt.Sprintf("%-9d", p.PID))
 	str += fmt.Sprintf("%-9s", p.User.Name)
 	str += fmt.Sprintf("%-9s", p.User.Group.Name)
-	str += color.CyanString(fmt.Sprintf("%-16s", p.ProcModule.Comm))
-	x = x + 43
+	x = x + 27
 	if TableFmtNS {
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.PID)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Cgroup)
@@ -140,6 +139,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 		}
 
 	}
+	str += color.CyanString(fmt.Sprintf("%-16s", p.ProcModule.Comm))
 	str += fmt.Sprintf("\n")
 
 	if p.DrawLineAfter {
