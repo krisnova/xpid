@@ -127,19 +127,22 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 				str += fmt.Sprintf("%-*s", x, "")
 			}
 			if lm >= i+1 {
-				str += fmt.Sprintf("| %-16s", p.EBPFModule.Maps[i])
+				str += fmt.Sprintf("%-16s", p.EBPFModule.Maps[i])
 			} else {
-				str += fmt.Sprintf("| %-16s", "")
+				str += fmt.Sprintf("%-16s", "")
 			}
 			if lp >= i+1 {
-				str += fmt.Sprintf("| %-16s", p.EBPFModule.Progs[i])
+				str += fmt.Sprintf("%-16s", p.EBPFModule.Progs[i])
 			} else {
-				str += fmt.Sprintf("| %-16s", "")
+				str += fmt.Sprintf("%-16s", "")
 			}
 			if i+1 != l {
 				str += "\n"
 			}
 			n = true
+		}
+		if l < 0 {
+			str += drawLine("-")
 		}
 	}
 	str += fmt.Sprintf("\n")
