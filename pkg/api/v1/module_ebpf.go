@@ -40,8 +40,11 @@ func NewEBPFModule() *EBPFModule {
 }
 
 const (
-	EBPFFullMount  string = "bpf /sys/fs/bpf bpf"
-	EBPFSYSFSMount string = "/sys/fs/bpf"
+	// Taken from <linux/bpf.h>
+	// https://github.com/torvalds/linux/blob/master/include/uapi/linux/bpf.h
+
+	FileDescriptorMapIDKey  = "map_id"
+	FileDescriptorProgIDKey = "prog_id"
 )
 
 func (m *EBPFModule) Meta() *Meta {
@@ -61,34 +64,65 @@ func (m *EBPFModule) Execute(p *Process) error {
 	mounts, _ := procfshandle.ContentsPID(p.PID, "mounts")
 	p.Mounts = mounts
 
-	e, err := NewEBPFFileSystemData()
+	bpfDebug, err := NewEBPFFileSystemData()
 	if err != nil {
 		return fmt.Errorf("unable to read /sys/fs/bpf: %v", err)
 	}
 
-	// Compare with file descriptors in /proc
+	// Compare with file descriptors in fdinfo
+
+	// [root@emily]: /proc/141735/fdinfo># cat 17
+	//pos:    0
+	//flags:  02000000
+	//mnt_id: 15
+	//ino:    10586
+	//link_type:      perf
+	//link_id:        19
+	//prog_tag:       40bd9646d9b53ff8
+	//prog_id:        106
+
 	fds, err := procfshandle.DirPID(p.PID, "fdinfo")
 
 	if err != nil {
 		return fmt.Errorf("unable to read /proc/%d/fdinfo: %v", p.PID, err)
 	}
+
+	// File descriptor scanning
+	//
+	// Here we try to map the file descriptor keys (map_id, prog_id)
+	// back to the established values found in the progs.debug and maps.debug
+	// sys filesystem
+	//
+	//
 	for _, fd := range fds {
 		fddata, err := procfshandle.ContentsPID(p.PID, filepath.Join("fdinfo", fd.Name()))
 		if err != nil {
 			continue
 		}
-		ebpfProgID := procfs.FileKeyValue(fddata, "prog_id")
-		if ebpfProgID == "" {
-			continue
-		}
-		for id, mp := range e.Progs {
+		fdProgID := procfs.FileKeyValue(fddata, FileDescriptorProgIDKey)
+		fdMapID := procfs.FileKeyValue(fddata, FileDescriptorMapIDKey)
+
+		// Map back to /sys/fs/bpf/progs.debug
+		for id, mp := range bpfDebug.Progs {
 			if id == "" {
 				continue
 			}
-			if id == ebpfProgID {
+			if id == fdProgID {
 				// We have mapped an eBPF program to a PID!
 				p.EBPF = true
 				p.EBPFModule.Progs = append(p.EBPFModule.Progs, mp.Name)
+			}
+		}
+
+		// Map back to /sys/fs/bpf/maps.debug
+		for id, mp := range bpfDebug.Maps {
+			if id == "" {
+				continue
+			}
+			if id == fdMapID {
+				// We have mapped an eBPF program to a PID!
+				p.EBPF = true
+				p.EBPFModule.Maps = append(p.EBPFModule.Maps, mp.Name)
 			}
 		}
 	}
@@ -120,6 +154,7 @@ const (
 	DefaultEBPFFileSystemDataDir = "/sys/fs/bpf"
 )
 
+// NewEBPFFileSystemData will read from /sys/fs/bpf/[maps.debug, progs.debug]
 func NewEBPFFileSystemData() (*EBPFFileSystemData, error) {
 	e := &EBPFFileSystemData{
 		Progs: make(map[string]*Prog),
@@ -136,15 +171,22 @@ func NewEBPFFileSystemData() (*EBPFFileSystemData, error) {
 		if line == "" {
 			continue
 		}
+
+		// Parse the file
 		spl := strings.Split(line, " ")
+		var name, id string
 		if len(spl) < 2 {
-			continue
+			name = ""
+		} else {
+			name = strings.TrimSpace(spl[1])
 		}
-		id := strings.TrimSpace(spl[0])
-		name := strings.TrimSpace(spl[1])
+		id = strings.TrimSpace(spl[0])
+
+		// Ignore headers
 		if id == "id" {
 			continue
 		}
+
 		mp := &Map{
 			ID:   id,
 			Name: name,
@@ -163,12 +205,18 @@ func NewEBPFFileSystemData() (*EBPFFileSystemData, error) {
 		if line == "" {
 			continue
 		}
+
+		// Parse the file
 		spl := strings.Split(line, " ")
+		var name, id string
 		if len(spl) < 2 {
-			continue
+			name = ""
+		} else {
+			name = strings.TrimSpace(spl[1])
 		}
-		id := strings.TrimSpace(spl[0])
-		name := strings.TrimSpace(spl[1])
+		id = strings.TrimSpace(spl[0])
+
+		// Ignore headers
 		if id == "id" {
 			continue
 		}

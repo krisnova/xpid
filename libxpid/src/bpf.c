@@ -17,10 +17,25 @@
 #include <bpf/bpf.h>
 #include <stdio.h>
 
+
+// [root@emily]: /proc/141735/fdinfo># cat 17
+// pos:    0
+// flags:  02000000
+// mnt_id: 15
+// ino:    10586
+// link_type:      perf
+// link_id:        19
+// prog_tag:       40bd9646d9b53ff8
+// prog_id:        106
 void bpf() {
   //
-  printf("Boop!\n");
+  //printf("Boop!\n");
   struct bpf_prog_info bpfProgInfo = {};
+  __u32 id = 0;
+
+
+  //bpf_prog_get_next_id(id, &id);
+
   return;
   //
 }
