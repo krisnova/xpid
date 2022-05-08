@@ -18,12 +18,9 @@ package table
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/fatih/color"
-	"golang.org/x/term"
-
 	encoder "github.com/kris-nova/xpid/pkg/encoders"
+	"golang.org/x/term"
 
 	filter "github.com/kris-nova/xpid/pkg/filters"
 
@@ -91,7 +88,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 			hdr += fmt.Sprintf("%-12s", "NS-MNT")    // Storage
 		}
 		if TableFmtBPF {
-			hdr += fmt.Sprintf("%-12s", "BPF-MAP")
+			hdr += fmt.Sprintf("%-16s", "BPF-MAP")
 			hdr += fmt.Sprintf("%-16s", "BPF-PROG")
 		}
 		hdr += fmt.Sprintf("\n")
@@ -100,7 +97,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 		str += hdr
 	}
 
-	// First line
+	// Lines
 	str += color.YellowString(fmt.Sprintf("%-9d", p.PID))
 	str += fmt.Sprintf("%-9s", p.User.Name)
 	str += fmt.Sprintf("%-9s", p.User.Group.Name)
@@ -112,8 +109,28 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Mount)
 	}
 	if TableFmtBPF {
-		str += fmt.Sprintf("%-12s", strings.Join(p.EBPFModule.Maps, " "))
-		str += fmt.Sprintf("%-16s", strings.Join(p.EBPFModule.Progs, " "))
+		var l, lm, lp int
+		lm = len(p.EBPFModule.Maps)
+		lp = len(p.EBPFModule.Progs)
+		if lp > lm {
+			l = lp
+		} else {
+			l = lm
+		}
+		for i := 0; i < l; i++ {
+			if lm >= i+1 {
+				str += fmt.Sprintf("%-16s", p.EBPFModule.Maps[i])
+			} else {
+				str += fmt.Sprintf("%-16s", "")
+			}
+			if lp >= i+1 {
+				str += fmt.Sprintf("%-16s", p.EBPFModule.Progs[i])
+			} else {
+				str += fmt.Sprintf("%-16s", "")
+			}
+			str += "\n"
+		}
+
 	}
 	str += fmt.Sprintf("\n")
 
