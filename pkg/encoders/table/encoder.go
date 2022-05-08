@@ -56,7 +56,7 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 	str += fmt.Sprintf("%-*s", len(u.Group.Name)+3, u.Group.Name)
 	str += fmt.Sprintf("%-*d", 5, u.Group.ID)
 	str += fmt.Sprintf("\n")
-	str += drawLine("=")
+	str += drawLine("─")
 
 	return []byte(str), nil
 }
@@ -153,7 +153,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	}
 
 	if p.DrawLineAfter {
-		str += drawLine("─")
+		str += drawLine("▄")
 	}
 
 	return []byte(str), nil
