@@ -136,7 +136,7 @@ func (m *EBPFModule) Execute(p *Process) error {
 		fdMapID := procfs.FileKeyValue(fddata, FileDescriptorMapIDKey)
 
 		// Map back to /sys/fs/bpf/progs.debug
-		for id, mp := range bpfDebug.Progs {
+		for id, _ := range bpfDebug.Progs {
 			if id == "" {
 				continue
 			}
@@ -151,7 +151,7 @@ func (m *EBPFModule) Execute(p *Process) error {
 		}
 
 		// Map back to /sys/fs/bpf/maps.debug
-		for id, mp := range bpfDebug.Maps {
+		for id, _ := range bpfDebug.Maps {
 			if id == "" {
 				continue
 			}
