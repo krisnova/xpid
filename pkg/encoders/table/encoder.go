@@ -112,6 +112,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Mount)
 		x = x + 48
 	}
+	var div bool
 	if TableFmtBPF {
 		var l, lm, lp int
 		lm = len(p.EBPFModule.Maps)
@@ -142,10 +143,14 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 			n = true
 		}
 		if l > 0 {
-			str += drawLine("-")
+			div = true
 		}
 	}
 	str += fmt.Sprintf("\n")
+	if div {
+		str += drawLine("-")
+
+	}
 
 	if p.DrawLineAfter {
 		str += drawLine("─")
