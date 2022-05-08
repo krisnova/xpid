@@ -14,17 +14,13 @@
 *                                                                           *
 \*===========================================================================*/
 
-#ifndef LIB_XPID_H
-#define LIB_XPID_H
+#include <bpf/bpf.h>
+#include <stdio.h>
 
-#include <sys/types.h>
-
-// proc_dir.c
-extern int proc_dir_opendir(pid_t pid);
-extern int proc_dir_chdir(pid_t pid);
-extern int proc_dir_dent(pid_t pid);
-
-// bpf.c
-extern void bpf();
-
-#endif  // end LIB_XPID_H
+void bpf() {
+  //
+  printf("Boop!\n");
+  struct bpf_prog_info bpfProgInfo = {};
+  return;
+  //
+}

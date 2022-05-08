@@ -22,6 +22,11 @@ package libxpid
 // #include "stdlib.h"
 import "C"
 
+// TODO We need to see what pid details we can get out of the kernel
+func BPFTodo() {
+	C.bpf()
+}
+
 //
 //func ProcPidComm(pid int64) string {
 //	var data string = ""

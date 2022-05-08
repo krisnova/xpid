@@ -22,6 +22,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/kris-nova/xpid/pkg/libxpid"
+
 	"github.com/kris-nova/xpid/pkg/procfs"
 )
 
@@ -90,6 +92,9 @@ func (m *EBPFModule) Execute(p *Process) error {
 			}
 		}
 	}
+
+	// Hacking in here during the stream
+	libxpid.BPFTodo()
 
 	return nil
 }
