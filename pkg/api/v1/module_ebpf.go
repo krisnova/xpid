@@ -240,9 +240,13 @@ func programDetails(p *Process, fddata string) string {
 	linkType := procfs.FileKeyValue(fddata, "link_type")
 	progId := procfs.FileKeyValue(fddata, "prog_id")
 	var progDetails string
+
+	// Hack in temporary
+	return linkType
+
 	if linkType != "" {
-		return linkType
-		//progDetails = fmt.Sprintf("%s(%s)", linkType, progId)
+		//return linkType
+		progDetails = fmt.Sprintf("%s(%s)", linkType, progId)
 	} else {
 		progDetails = progId
 	}
