@@ -148,14 +148,12 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	}
 	str += fmt.Sprintf("\n")
 	if div {
-		str += drawLine("┈")
+		str += drawLine("╌")
 
 	}
 
 	if p.DrawLineAfter {
 		str += drawLine("━")
-		str += drawLine("━")
-
 	}
 
 	return []byte(str), nil
