@@ -47,7 +47,7 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 	hdr += fmt.Sprintf("%-*s", len(u.Group.Name)+3, "GROUP")
 	hdr += fmt.Sprintf("%-*s", 5, "GID")
 	hdr += fmt.Sprintf("\n")
-	str += drawLine()
+	str += drawLine("─")
 	str += color.GreenString(hdr)
 
 	// First line
@@ -56,7 +56,7 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 	str += fmt.Sprintf("%-*s", len(u.Group.Name)+3, u.Group.Name)
 	str += fmt.Sprintf("%-*d", 5, u.Group.ID)
 	str += fmt.Sprintf("\n")
-	str += drawLine()
+	str += drawLine("─")
 
 	return []byte(str), nil
 }
@@ -139,13 +139,13 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 			}
 			n = true
 		}
-
+		drawLine("-")
 	}
 	str += color.CyanString(fmt.Sprintf("%-16s", p.ProcModule.Comm))
 	str += fmt.Sprintf("\n")
 
 	if p.DrawLineAfter {
-		str += drawLine()
+		str += drawLine("─")
 	}
 
 	return []byte(str), nil
@@ -160,7 +160,7 @@ func NewTableEncoder() *TableEncoder {
 	return &TableEncoder{}
 }
 
-func drawLine() string {
+func drawLine(ch string) string {
 	y, _, _ := term.GetSize(0)
 	if y == 0 {
 		return ""
@@ -168,7 +168,7 @@ func drawLine() string {
 	lc := color.New(color.Bold, color.FgGreen)
 	var str string
 	for i := 0; i < y; i++ {
-		str += lc.Sprintf("─")
+		str += lc.Sprintf(ch)
 	}
 	str += "\n"
 	return str
