@@ -98,15 +98,18 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	}
 
 	// Lines
+	x := 0
 	str += color.YellowString(fmt.Sprintf("%-9d", p.PID))
 	str += fmt.Sprintf("%-9s", p.User.Name)
 	str += fmt.Sprintf("%-9s", p.User.Group.Name)
 	str += color.CyanString(fmt.Sprintf("%-16s", p.ProcModule.Comm))
+	x = x + 34
 	if TableFmtNS {
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.PID)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Cgroup)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Net)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Mount)
+		x = x + 48
 	}
 	if TableFmtBPF {
 		var l, lm, lp int
@@ -118,6 +121,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 			l = lm
 		}
 		for i := 0; i < l; i++ {
+			fmt.Sprintf("%-*s", x, "")
 			if lm >= i+1 {
 				str += fmt.Sprintf("%-16s", p.EBPFModule.Maps[i])
 			} else {
