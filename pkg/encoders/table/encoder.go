@@ -134,7 +134,9 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 			} else {
 				str += fmt.Sprintf("%-16s", "")
 			}
-			str += "\n"
+			if i+1 != l {
+				str += "\n"
+			}
 			n = true
 		}
 
