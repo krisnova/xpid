@@ -99,7 +99,7 @@ func (m *EBPFModule) Execute(p *Process) error {
 				// We have mapped an eBPF program to a PID!
 				p.EBPF = true
 				progDetails := programDetails(p, fddata)
-				if !strings.Contains(strings.Join(p.EBPFModule.Progs, ""), progDetails) {
+				if progDetails != "" && !strings.Contains(strings.Join(p.EBPFModule.Progs, ""), progDetails) {
 					p.EBPFModule.Progs = append(p.EBPFModule.Progs, progDetails)
 				}
 			}
@@ -114,7 +114,7 @@ func (m *EBPFModule) Execute(p *Process) error {
 				// We have mapped an eBPF program to a PID!
 				p.EBPF = true
 				mapDetails := mapDetails(p, fddata)
-				if !strings.Contains(strings.Join(p.EBPFModule.Maps, ""), mapDetails) {
+				if mapDetails != "" && !strings.Contains(strings.Join(p.EBPFModule.Maps, ""), mapDetails) {
 					p.EBPFModule.Maps = append(p.EBPFModule.Maps, mapDetails)
 				}
 			}
@@ -241,7 +241,8 @@ func programDetails(p *Process, fddata string) string {
 	progId := procfs.FileKeyValue(fddata, "prog_id")
 	var progDetails string
 	if linkType != "" {
-		progDetails = fmt.Sprintf("%s(%s)", linkType, progId)
+		return linkType
+		//progDetails = fmt.Sprintf("%s(%s)", linkType, progId)
 	} else {
 		progDetails = progId
 	}
