@@ -35,40 +35,6 @@ type EBPFModule struct {
 	Maps   []string
 }
 
-//enum bpf_map_type {
-//	BPF_MAP_TYPE_UNSPEC,			0
-//	BPF_MAP_TYPE_HASH,				1
-//	BPF_MAP_TYPE_ARRAY,				2
-//	BPF_MAP_TYPE_PROG_ARRAY,		3
-//	BPF_MAP_TYPE_PERF_EVENT_ARRAY,	4
-//	BPF_MAP_TYPE_PERCPU_HASH,		5
-//	BPF_MAP_TYPE_PERCPU_ARRAY,		6
-//	BPF_MAP_TYPE_STACK_TRACE,		7
-//	BPF_MAP_TYPE_CGROUP_ARRAY,		.. so on
-//	BPF_MAP_TYPE_LRU_HASH,
-//	BPF_MAP_TYPE_LRU_PERCPU_HASH,
-//	BPF_MAP_TYPE_LPM_TRIE,
-//	BPF_MAP_TYPE_ARRAY_OF_MAPS,
-//	BPF_MAP_TYPE_HASH_OF_MAPS,
-//	BPF_MAP_TYPE_DEVMAP,
-//	BPF_MAP_TYPE_SOCKMAP,
-//	BPF_MAP_TYPE_CPUMAP,
-//	BPF_MAP_TYPE_XSKMAP,
-//	BPF_MAP_TYPE_SOCKHASH,
-//	BPF_MAP_TYPE_CGROUP_STORAGE,
-//	BPF_MAP_TYPE_REUSEPORT_SOCKARRAY,
-//	BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE,
-//	BPF_MAP_TYPE_QUEUE,
-//	BPF_MAP_TYPE_STACK,
-//	BPF_MAP_TYPE_SK_STORAGE,
-//	BPF_MAP_TYPE_DEVMAP_HASH,
-//	BPF_MAP_TYPE_STRUCT_OPS,
-//	BPF_MAP_TYPE_RINGBUF,
-//	BPF_MAP_TYPE_INODE_STORAGE,
-//	BPF_MAP_TYPE_TASK_STORAGE,
-//	BPF_MAP_TYPE_BLOOM_FILTER,
-//};
-
 func NewEBPFModule() *EBPFModule {
 	return &EBPFModule{}
 }
@@ -104,17 +70,6 @@ func (m *EBPFModule) Execute(p *Process) error {
 	}
 
 	// Compare with file descriptors in fdinfo
-
-	// [root@emily]: /proc/141735/fdinfo># cat 17
-	//pos:    0
-	//flags:  02000000
-	//mnt_id: 15
-	//ino:    10586
-	//link_type:      perf
-	//link_id:        19
-	//prog_tag:       40bd9646d9b53ff8
-	//prog_id:        106
-
 	fds, err := procfshandle.DirPID(p.PID, "fdinfo")
 
 	if err != nil {
@@ -269,11 +224,51 @@ func NewEBPFFileSystemData() (*EBPFFileSystemData, error) {
 }
 
 // fddata is the filedescriptor data
+//
+// Example BPF Program File Descriptor:
+//
+// [root@emily]: /proc/141735/fdinfo># cat 17
+// pos:    0
+// flags:  02000000
+// mnt_id: 15
+// ino:    10586
+// link_type:      perf
+// link_id:        19
+// prog_tag:       40bd9646d9b53ff8
+// prog_id:        106
 func programDetails(p *Process, fddata string) string {
-	return "prog"
+	linkType := procfs.FileKeyValue(fddata, "link_type")
+	progId := procfs.FileKeyValue(fddata, "prog_id")
+	var progDetails string
+	if linkType != "" {
+		progDetails = fmt.Sprintf("%s(%s)", linkType, progId)
+	} else {
+		progDetails = progId
+	}
+	return progDetails
 }
 
 // fddata is the filedescriptor data
+//
+// Example BPF Map File Descriptor:
+//
+// [root@alice]: /proc/2582229># cat fdinfo/11
+// pos:    0
+// flags:  02000002
+// mnt_id: 15
+// ino:    11861
+// map_type:       1
+// key_size:       20
+// value_size:     48
+// max_entries:    65535
+// map_flags:      0x1
+// map_extra:      0x0
+// memlock:        4718592
+// map_id: 79
+// frozen: 0
 func mapDetails(p *Process, fddata string) string {
-	return "map"
+	mapType := procfs.FileKeyValue(fddata, "map_type")
+	var mapDetails string
+	mapDetails = mapType
+	return mapDetails
 }
