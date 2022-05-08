@@ -18,6 +18,7 @@ package table
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fatih/color"
 	"golang.org/x/term"
@@ -64,7 +65,8 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 }
 
 var (
-	TableFmtNS bool = false
+	TableFmtNS  bool = false
+	TableFmtBPF bool = false
 )
 
 func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
@@ -81,13 +83,17 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 		hdr += fmt.Sprintf("%-9s", "PID")
 		hdr += fmt.Sprintf("%-9s", "USER")
 		hdr += fmt.Sprintf("%-9s", "GROUP")
+		hdr += fmt.Sprintf("%-16s", "CMD")
 		if TableFmtNS {
 			hdr += fmt.Sprintf("%-12s", "NS-PID")    // Compute
 			hdr += fmt.Sprintf("%-12s", "NS-CGROUP") // Compute
 			hdr += fmt.Sprintf("%-12s", "NS-NET")    // Network
-			hdr += fmt.Sprintf("%-12s", "NS-MNT")    // Storage\
+			hdr += fmt.Sprintf("%-12s", "NS-MNT")    // Storage
 		}
-		hdr += fmt.Sprintf("%-16s", "CMD")
+		if TableFmtBPF {
+			hdr += fmt.Sprintf("%-12s", "BPF-PROG")
+			hdr += fmt.Sprintf("%-12s", "BPF-MAP")
+		}
 		hdr += fmt.Sprintf("\n")
 		hdrColor := color.New(color.FgGreen)
 		hdr = hdrColor.Sprintf(hdr)
@@ -98,13 +104,17 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	str += color.YellowString(fmt.Sprintf("%-9d", p.PID))
 	str += fmt.Sprintf("%-9s", p.User.Name)
 	str += fmt.Sprintf("%-9s", p.User.Group.Name)
+	str += color.CyanString(fmt.Sprintf("%-16s", p.ProcModule.Comm))
 	if TableFmtNS {
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.PID)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Cgroup)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Net)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Mount)
 	}
-	str += color.CyanString(fmt.Sprintf("%-16s", p.ProcModule.Comm))
+	if TableFmtBPF {
+		str += fmt.Sprintf("%-12s", strings.Join(p.EBPFModule.Progs, " "))
+		str += fmt.Sprintf("%-12s", strings.Join(p.EBPFModule.Maps, " "))
+	}
 	str += fmt.Sprintf("\n")
 
 	if p.DrawLineAfter {

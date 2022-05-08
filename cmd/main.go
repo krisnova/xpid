@@ -206,7 +206,7 @@ Find all hidden processes on a system (slow)
 			},
 			&cli.BoolFlag{
 				Name:        "ebpf",
-				Aliases:     []string{"bpf", "b"},
+				Aliases:     []string{"bpf", "b"}, // The "B" stands for Berkeley, Bitches.
 				Destination: &cfg.Ebpf,
 				Value:       false,
 				Usage:       "Show pids with BPF programs attached.",
@@ -271,6 +271,9 @@ Find all hidden processes on a system (slow)
 			// Validation
 			if cfg.Hidden && cfg.ProcListing {
 				return fmt.Errorf("unable to find hidden pids by only looking in procfs")
+			}
+			if cfg.Ebpf {
+				table.TableFmtBPF = true
 			}
 
 			// Initialize the explorer based on flags

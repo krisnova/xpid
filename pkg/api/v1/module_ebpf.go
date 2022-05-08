@@ -93,7 +93,6 @@ func (m *EBPFModule) Execute(p *Process) error {
 	// back to the established values found in the progs.debug and maps.debug
 	// sys filesystem
 	//
-	//
 	for _, fd := range fds {
 		fddata, err := procfshandle.ContentsPID(p.PID, filepath.Join("fdinfo", fd.Name()))
 		if err != nil {
@@ -110,7 +109,17 @@ func (m *EBPFModule) Execute(p *Process) error {
 			if id == fdProgID {
 				// We have mapped an eBPF program to a PID!
 				p.EBPF = true
-				p.EBPFModule.Progs = append(p.EBPFModule.Progs, mp.Name)
+
+				// Now we build a "program string" which will
+				// simply pull as much relevant detail as we can find
+				// We will need to hardcode specific values that
+				// are "interesting" here!
+				progDetails := mp.Name
+				pdLinkType := procfs.FileKeyValue(fddata, "link_type")
+				if pdLinkType != "" {
+					progDetails = fmt.Sprintf("%s:%s", progDetails, pdLinkType)
+				}
+				p.EBPFModule.Progs = append(p.EBPFModule.Progs, progDetails)
 			}
 		}
 
@@ -122,7 +131,17 @@ func (m *EBPFModule) Execute(p *Process) error {
 			if id == fdMapID {
 				// We have mapped an eBPF program to a PID!
 				p.EBPF = true
-				p.EBPFModule.Maps = append(p.EBPFModule.Maps, mp.Name)
+
+				// Now we build a "map string" which will
+				// simply pull as much relevant detail as we can find
+				// We will need to hardcode specific values that
+				// are "interesting" here!
+				mapDetails := mp.Name
+				//pdLinkType := procfs.FileKeyValue(fddata, "link_type")
+				//if pdLinkType != "" {
+				//	mapDetails = fmt.Sprintf("%s:%s", mapDetails, pdLinkType)
+				//}
+				p.EBPFModule.Progs = append(p.EBPFModule.Progs, mapDetails)
 			}
 		}
 	}
