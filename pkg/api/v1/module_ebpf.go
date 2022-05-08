@@ -35,6 +35,40 @@ type EBPFModule struct {
 	Maps   []string
 }
 
+//enum bpf_map_type {
+//	BPF_MAP_TYPE_UNSPEC,			0
+//	BPF_MAP_TYPE_HASH,				1
+//	BPF_MAP_TYPE_ARRAY,				2
+//	BPF_MAP_TYPE_PROG_ARRAY,		3
+//	BPF_MAP_TYPE_PERF_EVENT_ARRAY,	4
+//	BPF_MAP_TYPE_PERCPU_HASH,		5
+//	BPF_MAP_TYPE_PERCPU_ARRAY,		6
+//	BPF_MAP_TYPE_STACK_TRACE,		7
+//	BPF_MAP_TYPE_CGROUP_ARRAY,		.. so on
+//	BPF_MAP_TYPE_LRU_HASH,
+//	BPF_MAP_TYPE_LRU_PERCPU_HASH,
+//	BPF_MAP_TYPE_LPM_TRIE,
+//	BPF_MAP_TYPE_ARRAY_OF_MAPS,
+//	BPF_MAP_TYPE_HASH_OF_MAPS,
+//	BPF_MAP_TYPE_DEVMAP,
+//	BPF_MAP_TYPE_SOCKMAP,
+//	BPF_MAP_TYPE_CPUMAP,
+//	BPF_MAP_TYPE_XSKMAP,
+//	BPF_MAP_TYPE_SOCKHASH,
+//	BPF_MAP_TYPE_CGROUP_STORAGE,
+//	BPF_MAP_TYPE_REUSEPORT_SOCKARRAY,
+//	BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE,
+//	BPF_MAP_TYPE_QUEUE,
+//	BPF_MAP_TYPE_STACK,
+//	BPF_MAP_TYPE_SK_STORAGE,
+//	BPF_MAP_TYPE_DEVMAP_HASH,
+//	BPF_MAP_TYPE_STRUCT_OPS,
+//	BPF_MAP_TYPE_RINGBUF,
+//	BPF_MAP_TYPE_INODE_STORAGE,
+//	BPF_MAP_TYPE_TASK_STORAGE,
+//	BPF_MAP_TYPE_BLOOM_FILTER,
+//};
+
 func NewEBPFModule() *EBPFModule {
 	return &EBPFModule{}
 }
@@ -114,10 +148,10 @@ func (m *EBPFModule) Execute(p *Process) error {
 				// simply pull as much relevant detail as we can find
 				// We will need to hardcode specific values that
 				// are "interesting" here!
-				progDetails := mp.Name
+				progDetails := strings.TrimSpace(mp.Name)
 				pdLinkType := procfs.FileKeyValue(fddata, "link_type")
-				if pdLinkType != "" {
-					progDetails = fmt.Sprintf("%s:%s", progDetails, pdLinkType)
+				if pdLinkType != "" && !strings.Contains(strings.Join(p.EBPFModule.Progs, ""), pdLinkType) {
+					progDetails = fmt.Sprintf("%s(%s)", progDetails, pdLinkType)
 				}
 				p.EBPFModule.Progs = append(p.EBPFModule.Progs, progDetails)
 			}
@@ -141,6 +175,7 @@ func (m *EBPFModule) Execute(p *Process) error {
 				//if pdLinkType != "" {
 				//	mapDetails = fmt.Sprintf("%s:%s", mapDetails, pdLinkType)
 				//}
+				// TODO Lookup map type in C program
 				p.EBPFModule.Progs = append(p.EBPFModule.Progs, mapDetails)
 			}
 		}
