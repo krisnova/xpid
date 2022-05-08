@@ -153,8 +153,9 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	}
 
 	if p.DrawLineAfter {
-		str += drawLine("▃")
-		str += "\n"
+		str += drawLine("━")
+		str += drawLine("━")
+
 	}
 
 	return []byte(str), nil
