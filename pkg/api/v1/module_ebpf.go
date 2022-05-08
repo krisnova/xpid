@@ -143,17 +143,10 @@ func (m *EBPFModule) Execute(p *Process) error {
 			if id == fdProgID {
 				// We have mapped an eBPF program to a PID!
 				p.EBPF = true
-
-				// Now we build a "program string" which will
-				// simply pull as much relevant detail as we can find
-				// We will need to hardcode specific values that
-				// are "interesting" here!
-				progDetails := strings.TrimSpace(mp.Name)
-				pdLinkType := procfs.FileKeyValue(fddata, "link_type")
-				if pdLinkType != "" && !strings.Contains(strings.Join(p.EBPFModule.Progs, ""), pdLinkType) {
-					progDetails = fmt.Sprintf("%s(%s)", progDetails, pdLinkType)
+				progDetails := programDetails(p, fddata)
+				if !strings.Contains(strings.Join(p.EBPFModule.Progs, ""), progDetails) {
+					p.EBPFModule.Progs = append(p.EBPFModule.Progs, progDetails)
 				}
-				p.EBPFModule.Progs = append(p.EBPFModule.Progs, progDetails)
 			}
 		}
 
@@ -165,18 +158,10 @@ func (m *EBPFModule) Execute(p *Process) error {
 			if id == fdMapID {
 				// We have mapped an eBPF program to a PID!
 				p.EBPF = true
-
-				// Now we build a "map string" which will
-				// simply pull as much relevant detail as we can find
-				// We will need to hardcode specific values that
-				// are "interesting" here!
-				mapDetails := mp.Name
-				//pdLinkType := procfs.FileKeyValue(fddata, "link_type")
-				//if pdLinkType != "" {
-				//	mapDetails = fmt.Sprintf("%s:%s", mapDetails, pdLinkType)
-				//}
-				// TODO Lookup map type in C program
-				p.EBPFModule.Progs = append(p.EBPFModule.Progs, mapDetails)
+				mapDetails := mapDetails(p, fddata)
+				if !strings.Contains(strings.Join(p.EBPFModule.Maps, ""), mapDetails) {
+					p.EBPFModule.Maps = append(p.EBPFModule.Maps, mapDetails)
+				}
 			}
 		}
 	}
@@ -281,4 +266,14 @@ func NewEBPFFileSystemData() (*EBPFFileSystemData, error) {
 		e.Progs[id] = p
 	}
 	return e, nil
+}
+
+// fddata is the filedescriptor data
+func programDetails(p *Process, fddata string) string {
+	return "prog"
+}
+
+// fddata is the filedescriptor data
+func mapDetails(p *Process, fddata string) string {
+	return "map"
 }
