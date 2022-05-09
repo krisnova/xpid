@@ -18,12 +18,11 @@ package v1
 
 import (
 	"fmt"
+	"github.com/kris-nova/xpid/pkg/libxpid"
 	"io/ioutil"
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	"github.com/kris-nova/xpid/pkg/libxpid"
 
 	"github.com/kris-nova/xpid/pkg/procfs"
 )

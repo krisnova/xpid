@@ -22,12 +22,17 @@ package libxpid
 // #include "stdlib.h"
 import "C"
 import (
+	"sync"
 	"unsafe"
 )
 
 // TODO We need to see what pid details we can get out of the kernel
 
+var libxpidbpfenummtx sync.Mutex
+
 func BPFMapType(mapType int) string {
+	libxpidbpfenummtx.Lock()
+	defer libxpidbpfenummtx.Unlock()
 	var name string
 	cname := C.CString(name)
 	C.bpf_map_type_enum(C.int(mapType), cname)
