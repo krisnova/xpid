@@ -249,9 +249,11 @@ func programDetails(p *Process, fddata string) string {
 	progId := procfs.FileKeyValue(fddata, "prog_id")
 	tpName := procfs.FileKeyValue(fddata, "tp_name")
 	var progDetails string
-	if tpName != "" {
-		progDetails = fmt.Sprintf("%s %s", progDetails, tpName)
+	if tpName == "" {
+		// Ignore programs with a tracepoint name
+		return ""
 	}
+	progDetails = tpName
 	if linkType != "" {
 		progDetails = fmt.Sprintf("%s %s", progDetails, linkType)
 	}
