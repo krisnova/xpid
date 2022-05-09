@@ -47,9 +47,9 @@ type AppOptions struct {
 	// Verbose will toggle verbosity (breaks encoding)
 	Verbose bool
 
-	// Fast will toggle the concurrent pool buffer for the process explorer.
+	// Concurrent will toggle the concurrent pool buffer for the process explorer.
 	// If enabled will run concurrently, or "fast".
-	Fast bool
+	Concurrent bool
 
 	// Encoders
 	//
@@ -92,6 +92,17 @@ func main() {
 		Aliases: []string{"V"},
 		Usage:   "The version of the program.",
 	}
+
+	// EXAMPLE: Override a template
+	cli.AppHelpTemplate = fmt.Sprintf(`%s
+{{.Usage}}
+
+{{.UsageText}}
+Options
+   {{range .VisibleFlags}}{{.}}
+   {{end}}
+`, xpid.Banner())
+
 	app := &cli.App{
 		Name:     xpid.Name,
 		Version:  xpid.Version,
@@ -102,6 +113,7 @@ func main() {
 				Email: xpid.AuthorEmail,
 			},
 		},
+
 		Copyright: xpid.Copyright,
 		HelpName:  xpid.Copyright,
 		Usage:     "Linux Process Discovery. Like nmap, but for pids.",
@@ -113,103 +125,124 @@ Investigate all pids
 Investigate pid 1
 	xpid 1
 
-Investigate pids 1-10 in table view
-	xpid -o table 1-10
-
 Find all container processes on a system
 	xpid -c
 
-Find all container processes between pids 100-200
-	xpid -c -o table 100-200
+Find all processes in the same namespace(s) as pid 1
+	xpid --ns-in [mnt, net, pid, ipc, cgroup]
+
+Find all processes not in the same namespace(s) as current user
+	xpid --ns-out-user [mnt, net, pid, ipc, cgroup]
 
 Find all processes running with eBPF programs as JSON
 	xpid --ebpf -o json <pid-query>
 
-Find all processes between specific values
+Find all processes running with eBPF programs, in a container, in /proc
+	xpid -b -c -p
+
+Find all processes between specific values (Query syntax)
 	xpid <flags> +100      # Search pids up to 100
 	xpid <flags> 100-2000  # Search pids between 100-2000 
 	xpid <flags> 65000+    # Search pids 65000 or above
 
-Find all "hidden" processes on a system
-	# Looks for chdir, opendir, and dent in /proc
+Find all hidden processes on a system (slow)
 	xpid -x <pid-query>
 `,
-		Commands: []*cli.Command{
-			&cli.Command{},
-		},
+		Commands: []*cli.Command{},
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:        "verbose",
 				Aliases:     []string{"v"},
 				Destination: &cfg.Verbose,
+				Usage:       "Toggle verbose mode",
+				DefaultText: "",
 			},
 			&cli.StringFlag{
-				Name:        "output",
-				Aliases:     []string{"o", "out"},
+				Name:        "out",
+				Aliases:     []string{"o"},
 				Destination: &cfg.Output,
+				Usage:       "Set output encoder (json, table, raw)",
 			},
 			&cli.BoolFlag{
 				Name:        "proc",
-				Aliases:     []string{"p", "pl", "proc-listing"},
+				Aliases:     []string{"p", "pl"},
 				Destination: &cfg.ProcListing,
+				Usage:       "List only pids in /proc (Fast).",
+				DefaultText: "",
 			},
 			&cli.StringSliceFlag{
 				Name:        "ns-in",
 				Aliases:     []string{"N"},
 				Destination: &cfg.NamespaceInPid1,
-				Usage:       "Return only pids in [mnt, net, pid, ipc, cgroup] namespace that matches pid 1.",
+				Usage:       "Show pids in namespace(s) as pid 1.",
+				DefaultText: "",
 			},
 			&cli.StringSliceFlag{
 				Name:        "ns-out",
 				Aliases:     []string{"O"},
 				Destination: &cfg.NamespaceOutPid1,
-				Usage:       "Reject pids from [mnt, net, pid, ipc, cgroup] namespace that matches pid 1.",
+				Usage:       "Reject pids in namespace(s) as pid 1.",
+				DefaultText: "",
 			},
 			&cli.StringSliceFlag{
 				Name:        "ns-in-user",
 				Destination: &cfg.NamespaceInPid1,
-				Usage:       "Return only pids in [mnt, net, pid, ipc, cgroup] namespace that matches current user.",
+				Usage:       "Show pids in namespace(s) as user.",
+				DefaultText: "",
 			},
 			&cli.StringSliceFlag{
 				Name:        "ns-out-user",
 				Destination: &cfg.NamespaceOutPid1,
-				Usage:       "Reject pids from [mnt, net, pid, ipc, cgroup] namespace that current user.",
+				Usage:       "Reject pids in namespace(s) as user.",
+				DefaultText: "",
 			},
 			&cli.BoolFlag{
-				Name:        "fast",
-				Aliases:     []string{"f"},
-				Destination: &cfg.Fast,
+				Name:        "concurrent",
+				Aliases:     []string{"C", "fast"},
+				Destination: &cfg.Concurrent,
 				Value:       true,
+				Usage:       "Run concurrently (heavy CPU).",
+				// Leave default text alone
 			},
 			&cli.BoolFlag{
 				Name:        "ebpf",
-				Aliases:     []string{"bpf", "b"},
+				Aliases:     []string{"bpf", "b"}, // The "B" stands for Berkeley, Bitches.
 				Destination: &cfg.Ebpf,
 				Value:       false,
+				Usage:       "Show pids with BPF programs attached.",
+				DefaultText: "",
 			},
 			&cli.BoolFlag{
 				Name:        "hidden",
 				Aliases:     []string{"x"},
 				Destination: &cfg.Hidden,
 				Value:       false,
+				Usage:       "Useful for finding rootkits.",
+				DefaultText: "",
 			},
 			&cli.BoolFlag{
 				Name:        "threads",
 				Aliases:     []string{"t", "thread"},
 				Destination: &cfg.Threads,
 				Value:       false,
+				Usage:       "Show threads and parent pids",
+				DefaultText: "",
 			},
 			&cli.BoolFlag{
 				Name:        "container",
-				Aliases:     []string{"c", "containers"},
+				Aliases:     []string{"c"},
 				Destination: &cfg.Container,
 				Value:       false,
+				Usage:       "Show pids with unique cgroup namespace.",
+				DefaultText: "",
 			},
 			&cli.BoolFlag{
 				Name:        "n",
 				Aliases:     []string{"namespaces"},
 				Destination: &cfg.ShowTableNamespaces,
 				Value:       false,
+				Usage:       "Display system namespaces.",
+				DefaultText: "",
 			},
 		},
 		EnableBashCompletion: false,
@@ -234,6 +267,15 @@ Find all "hidden" processes on a system
 				}
 				query = fmt.Sprintf("1-%d", max)
 			}
+
+			// Validation
+			if cfg.Hidden && cfg.ProcListing {
+				return fmt.Errorf("unable to find hidden pids by only looking in procfs")
+			}
+			if cfg.Ebpf {
+				table.TableFmtBPF = true
+			}
+
 			// Initialize the explorer based on flags
 			if cfg.ProcListing {
 				pids = procx.ProcListingQuery(query)
@@ -248,7 +290,7 @@ Find all "hidden" processes on a system
 			x := procx.NewProcessExplorer(pids)
 
 			// Fast
-			x.SetFast(cfg.Fast)
+			x.SetFast(cfg.Concurrent)
 
 			// Encoder
 			var encoder encoder.ProcessExplorerEncoder
@@ -467,6 +509,7 @@ Find all "hidden" processes on a system
 			return x.Execute()
 		},
 	}
+
 	err := app.Run(os.Args)
 	if err != nil {
 		logrus.Errorf("execution error: %v", err)

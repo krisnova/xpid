@@ -14,8 +14,9 @@
 *                                                                           *
 \*===========================================================================*/
 
-#include <stdio.h>
 #include "proc.h"
+
+#include <stdio.h>
 
 void procfs(char *p) {
   // TODO We need to actually look up where proc is mounted!
@@ -27,7 +28,7 @@ void procfs_pid(char *p, int pid) {
   sprintf(p, "%s/%d", PROCFS_DEFAULT, pid);
 }
 
-void procfs_pid_file(char *p, int pid, char* file) {
+void procfs_pid_file(char *p, int pid, char *file) {
   // TODO We need to actually look up where proc is mounted!
   sprintf(p, "%s/%d/%s", PROCFS_DEFAULT, pid, file);
 }

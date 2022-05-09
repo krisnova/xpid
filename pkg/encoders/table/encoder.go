@@ -18,11 +18,9 @@ package table
 
 import (
 	"fmt"
-
 	"github.com/fatih/color"
-	"golang.org/x/term"
-
 	encoder "github.com/kris-nova/xpid/pkg/encoders"
+	"golang.org/x/term"
 
 	filter "github.com/kris-nova/xpid/pkg/filters"
 
@@ -49,7 +47,7 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 	hdr += fmt.Sprintf("%-*s", len(u.Group.Name)+3, "GROUP")
 	hdr += fmt.Sprintf("%-*s", 5, "GID")
 	hdr += fmt.Sprintf("\n")
-	str += drawLine()
+	str += drawLine("─")
 	str += color.GreenString(hdr)
 
 	// First line
@@ -58,13 +56,14 @@ func (j *TableEncoder) EncodeUser(u *api.User) ([]byte, error) {
 	str += fmt.Sprintf("%-*s", len(u.Group.Name)+3, u.Group.Name)
 	str += fmt.Sprintf("%-*d", 5, u.Group.ID)
 	str += fmt.Sprintf("\n")
-	str += drawLine()
+	str += drawLine("─")
 
 	return []byte(str), nil
 }
 
 var (
-	TableFmtNS bool = false
+	TableFmtNS  bool = false
+	TableFmtBPF bool = false
 )
 
 func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
@@ -81,34 +80,78 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 		hdr += fmt.Sprintf("%-9s", "PID")
 		hdr += fmt.Sprintf("%-9s", "USER")
 		hdr += fmt.Sprintf("%-9s", "GROUP")
+		hdr += fmt.Sprintf("%-24s", "CMD")
+
 		if TableFmtNS {
 			hdr += fmt.Sprintf("%-12s", "NS-PID")    // Compute
 			hdr += fmt.Sprintf("%-12s", "NS-CGROUP") // Compute
 			hdr += fmt.Sprintf("%-12s", "NS-NET")    // Network
-			hdr += fmt.Sprintf("%-12s", "NS-MNT")    // Storage\
+			hdr += fmt.Sprintf("%-12s", "NS-MNT")    // Storage
 		}
-		hdr += fmt.Sprintf("%-16s", "CMD")
+		if TableFmtBPF {
+			hdr += fmt.Sprintf("%-36s", "BPF-MAP")
+			hdr += fmt.Sprintf("%-36s", "BPF-PROG")
+		}
 		hdr += fmt.Sprintf("\n")
 		hdrColor := color.New(color.FgGreen)
 		hdr = hdrColor.Sprintf(hdr)
 		str += hdr
 	}
 
-	// First line
+	// Lines
+	x := 0
 	str += color.YellowString(fmt.Sprintf("%-9d", p.PID))
 	str += fmt.Sprintf("%-9s", p.User.Name)
 	str += fmt.Sprintf("%-9s", p.User.Group.Name)
+	str += color.CyanString(fmt.Sprintf("%-24s", p.ProcModule.Comm))
+	x = x + 51
 	if TableFmtNS {
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.PID)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Cgroup)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Net)
 		str += fmt.Sprintf("%-12s", p.NamespaceModule.Mount)
+		x = x + 48
 	}
-	str += color.CyanString(fmt.Sprintf("%-16s", p.ProcModule.Comm))
+	var div bool
+	if TableFmtBPF {
+		var l, lm, lp int
+		lm = len(p.EBPFModule.Maps)
+		lp = len(p.EBPFModule.Progs)
+		if lp > lm {
+			l = lp
+		} else {
+			l = lm
+		}
+		n := false
+		for i := 0; i < l; i++ {
+			if n {
+				str += fmt.Sprintf("%-*s", x, "")
+			}
+			if lm >= i+1 {
+				str += fmt.Sprintf("%-36s", p.EBPFModule.Maps[i])
+			} else {
+				str += fmt.Sprintf("%-36s", "╌╌╌╌")
+			}
+			if lp >= i+1 {
+				str += fmt.Sprintf("%-36s", p.EBPFModule.Progs[i])
+			} else {
+				str += fmt.Sprintf("%-36s", "╌╌╌╌")
+			}
+			if i+1 != l {
+				str += "\n"
+			}
+			n = true
+		}
+		if l > 0 {
+			div = true
+		}
+	}
 	str += fmt.Sprintf("\n")
-
+	if div {
+		str += drawLine("╌")
+	}
 	if p.DrawLineAfter {
-		str += drawLine()
+		str += drawLine("━")
 	}
 
 	return []byte(str), nil
@@ -123,7 +166,7 @@ func NewTableEncoder() *TableEncoder {
 	return &TableEncoder{}
 }
 
-func drawLine() string {
+func drawLine(ch string) string {
 	y, _, _ := term.GetSize(0)
 	if y == 0 {
 		return ""
@@ -131,7 +174,7 @@ func drawLine() string {
 	lc := color.New(color.Bold, color.FgGreen)
 	var str string
 	for i := 0; i < y; i++ {
-		str += lc.Sprintf("─")
+		str += lc.Sprintf("%s", ch)
 	}
 	str += "\n"
 	return str

@@ -15,10 +15,10 @@
 \*===========================================================================*/
 
 #include <dirent.h>
-#include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+#include <unistd.h>
 
 #include "proc.h"
 #include "xpid.h"
@@ -30,7 +30,7 @@
  * @param pid
  * @return
  */
-int proc_dir_opendir(pid_t pid){
+int proc_dir_opendir(pid_t pid) {
   struct dirent *dent;
   char *p = malloc(PROCFS_PATH_MAX);
   procfs_pid(p, pid);
@@ -72,9 +72,6 @@ int proc_dir_chdir(pid_t pid) {
   return 2;
 }
 
-
-
-
 /**
  * proc_dir_dent will attempt to opendir(/proc/[pid])
  * and list (dent) files and report.
@@ -82,7 +79,7 @@ int proc_dir_chdir(pid_t pid) {
  * @param pid
  * @return
  */
-int proc_dir_dent(pid_t pid){
+int proc_dir_dent(pid_t pid) {
   char *pproc = malloc(PROCFS_PATH_MAX);
   char *pprocpid = malloc(PROCFS_PATH_MAX);
   procfs(pproc);
@@ -110,4 +107,3 @@ int proc_dir_dent(pid_t pid){
   free(pprocpid);
   return 0;
 }
-
