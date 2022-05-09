@@ -27,12 +27,20 @@ import (
 )
 
 const (
-	Empty8   string = "        "
-	Empty16  string = Empty8 + Empty8
-	Empty32  string = Empty16 + Empty16
-	Empty64  string = Empty32 + Empty32
-	Empty128 string = Empty64 + Empty64
-	Empty256 string = Empty128 + Empty128
+
+	// Memory in C is hard
+
+	Empty1    string = " "
+	Empty2    string = Empty1 + Empty1
+	Empty4    string = Empty2 + Empty2
+	Empty8    string = Empty4 + Empty4
+	Empty16   string = Empty8 + Empty8
+	Empty32   string = Empty16 + Empty16
+	Empty64   string = Empty32 + Empty32
+	Empty128  string = Empty64 + Empty64
+	Empty256  string = Empty128 + Empty128
+	Empty512  string = Empty256 + Empty256
+	Empty1024 string = Empty512 + Empty512
 )
 
 // TODO We need to see what pid details we can get out of the kernel
