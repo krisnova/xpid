@@ -89,8 +89,8 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 			hdr += fmt.Sprintf("%-12s", "NS-MNT")    // Storage
 		}
 		if TableFmtBPF {
-			hdr += fmt.Sprintf("%-24s", "BPF-MAP")
-			hdr += fmt.Sprintf("%-24s", "BPF-PROG")
+			hdr += fmt.Sprintf("%-36s", "BPF-MAP")
+			hdr += fmt.Sprintf("%-36s", "BPF-PROG")
 		}
 		hdr += fmt.Sprintf("\n")
 		hdrColor := color.New(color.FgGreen)
@@ -128,14 +128,14 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 				str += fmt.Sprintf("%-*s", x, "")
 			}
 			if lm >= i+1 {
-				str += fmt.Sprintf("%-24s", p.EBPFModule.Maps[i])
+				str += fmt.Sprintf("%-36s", p.EBPFModule.Maps[i])
 			} else {
-				str += fmt.Sprintf("%-24s", "╌╌╌╌")
+				str += fmt.Sprintf("%-36s", "╌╌╌╌")
 			}
 			if lp >= i+1 {
-				str += fmt.Sprintf("%-24s", p.EBPFModule.Progs[i])
+				str += fmt.Sprintf("%-36s", p.EBPFModule.Progs[i])
 			} else {
-				str += fmt.Sprintf("%-24s", "╌╌╌╌")
+				str += fmt.Sprintf("%-36s", "╌╌╌╌")
 			}
 			if i+1 != l {
 				str += "\n"

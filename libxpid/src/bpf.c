@@ -20,110 +20,107 @@
 void bpf_map_type_enum_linux_5_17(int i, char *name) {
   switch (i) {
     case 0:
-      strncpy(name, "BPF_MAP_TYPE_UNSPEC", 128);
+      strncpy(name, "BPF_MAP_TYPE_UNSPEC", strlen(name));
       return;
     case 1:
-      strncpy(name, "BPF_MAP_TYPE_HASH", 128);
+      strncpy(name, "BPF_MAP_TYPE_HASH", strlen(name));
       return;
     case 2:
-      strncpy(name, "BPF_MAP_TYPE_ARRAY", 128);
+      strncpy(name, "BPF_MAP_TYPE_ARRAY", strlen(name));
       return;
     case 3:
-      strncpy(name, "BPF_MAP_TYPE_PROG_ARRAY", 128);
+      strncpy(name, "BPF_MAP_TYPE_PROG_ARRAY", strlen(name));
       return;
     case 4:
-      strncpy(name, "BPF_MAP_TYPE_PERF_EVENT_ARRAY", 128);
+      strncpy(name, "BPF_MAP_TYPE_PERF_EVENT_ARRAY", strlen(name));
       return;
     case 5:
-      strncpy(name, "BPF_MAP_TYPE_PERCPU_HASH", 128);
+      strncpy(name, "BPF_MAP_TYPE_PERCPU_HASH", strlen(name));
       return;
     case 6:
-      strncpy(name, "BPF_MAP_TYPE_PERCPU_ARRAY", 128);
+      strncpy(name, "BPF_MAP_TYPE_PERCPU_ARRAY", strlen(name));
       return;
     case 7:
-      strncpy(name, "BPF_MAP_TYPE_STACK_TRACE", 128);
+      strncpy(name, "BPF_MAP_TYPE_STACK_TRACE", strlen(name));
       return;
     case 8:
-      strncpy(name, "BPF_MAP_TYPE_CGROUP_ARRAY", 128);
+      strncpy(name, "BPF_MAP_TYPE_CGROUP_ARRAY", strlen(name));
       return;
     case 9:
-      strncpy(name, "BPF_MAP_TYPE_LRU_HASH", 128);
+      strncpy(name, "BPF_MAP_TYPE_LRU_HASH", strlen(name));
       return;
     case 10:
-      strncpy(name, "BPF_MAP_TYPE_LRU_PERCPU_HASH", 128);
+      strncpy(name, "BPF_MAP_TYPE_LRU_PERCPU_HASH", strlen(name));
       return;
     case 11:
-      strncpy(name, "BPF_MAP_TYPE_LPM_TRIE", 128);
+      strncpy(name, "BPF_MAP_TYPE_LPM_TRIE", strlen(name));
       return;
     case 12:
-      strncpy(name, "BPF_MAP_TYPE_ARRAY_OF_MAPS", 128);
+      strncpy(name, "BPF_MAP_TYPE_ARRAY_OF_MAPS", strlen(name));
       return;
     case 13:
-      strncpy(name, "BPF_MAP_TYPE_HASH_OF_MAPS", 128);
+      strncpy(name, "BPF_MAP_TYPE_HASH_OF_MAPS", strlen(name));
       return;
     case 14:
-      strncpy(name, "BPF_MAP_TYPE_DEVMAP", 128);
+      strncpy(name, "BPF_MAP_TYPE_DEVMAP", strlen(name));
       return;
     case 15:
-      strncpy(name, "BPF_MAP_TYPE_SOCKMAP", 128);
+      strncpy(name, "BPF_MAP_TYPE_SOCKMAP", strlen(name));
       return;
     case 16:
-      strncpy(name, "BPF_MAP_TYPE_CPUMAP", 128);
+      strncpy(name, "BPF_MAP_TYPE_CPUMAP", strlen(name));
       return;
     case 17:
-      strncpy(name, "BPF_MAP_TYPE_XSKMAP", 128);
+      strncpy(name, "BPF_MAP_TYPE_XSKMAP", strlen(name));
       return;
     case 18:
-      strncpy(name, "BPF_MAP_TYPE_SOCKHASH", 128);
+      strncpy(name, "BPF_MAP_TYPE_SOCKHASH", strlen(name));
       return;
     case 19:
-      strncpy(name, "BPF_MAP_TYPE_CGROUP_STORAGE", 128);
+      strncpy(name, "BPF_MAP_TYPE_CGROUP_STORAGE", strlen(name));
       return;
     case 20:
-      strncpy(name, "BPF_MAP_TYPE_REUSEPORT_SOCKARRAY", 128);
+      strncpy(name, "BPF_MAP_TYPE_REUSEPORT_SOCKARRAY", strlen(name));
       return;
     case 21:
-      strncpy(name, "BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE", 128);
+      strncpy(name, "BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE", strlen(name));
       return;
     case 22:
-      strncpy(name, "BPF_MAP_TYPE_QUEUE", 128);
+      strncpy(name, "BPF_MAP_TYPE_QUEUE", strlen(name));
       return;
     case 23:
-      strncpy(name, "BPF_MAP_TYPE_STACK", 128);
+      strncpy(name, "BPF_MAP_TYPE_STACK", strlen(name));
       return;
     case 24:
-      strncpy(name, "BPF_MAP_TYPE_SK_STORAGE", 128);
+      strncpy(name, "BPF_MAP_TYPE_SK_STORAGE", strlen(name));
       return;
     case 25:
-      strncpy(name, "BPF_MAP_TYPE_DEVMAP_HASH", 128);
+      strncpy(name, "BPF_MAP_TYPE_DEVMAP_HASH", strlen(name));
       return;
     case 26:
-      strncpy(name, "BPF_MAP_TYPE_STRUCT_OPS", 128);
+      strncpy(name, "BPF_MAP_TYPE_STRUCT_OPS", strlen(name));
       return;
     case 27:
-      strncpy(name, "BPF_MAP_TYPE_RINGBUF", 128);
+      strncpy(name, "BPF_MAP_TYPE_RINGBUF", strlen(name));
       return;
     case 28:
-      strncpy(name, "BPF_MAP_TYPE_INODE_STORAGE", 128);
+      strncpy(name, "BPF_MAP_TYPE_INODE_STORAGE", strlen(name));
       return;
     case 29:
-      strncpy(name, "BPF_MAP_TYPE_TASK_STORAGE", 128);
+      strncpy(name, "BPF_MAP_TYPE_TASK_STORAGE", strlen(name));
       return;
     case 30:
-      strncpy(name, "BPF_MAP_TYPE_BLOOM_FILTER", 128);
+      strncpy(name, "BPF_MAP_TYPE_BLOOM_FILTER", strlen(name));
       return;
     case 31:
-      strncpy(name, "BPF_MAP_TYPE_STRUCT_OPS", 128);
+      strncpy(name, "BPF_MAP_TYPE_STRUCT_OPS", strlen(name));
       return;
     default:
-      strncpy(name, "UNKNOWN", 128);
+      strncpy(name, "UNKNOWN", strlen(name));
       return;
   }
 }
 
 void bpf_map_type_enum(int i, char *name) {
-  //  char namestr[128];
   bpf_map_type_enum_linux_5_17(i, name);
-  //  strncpy(name, namestr, 128); return;
-  //  free(namestr);
 }
