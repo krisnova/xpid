@@ -15,6 +15,7 @@
 \*===========================================================================*/
 
 #include <string.h>
+#include <stdlib.h>
 
 void bpf_map_type_enum_linux_5_17(int i, char *name) {
   switch (i) {
@@ -56,5 +57,8 @@ void bpf_map_type_enum_linux_5_17(int i, char *name) {
 }
 
 void bpf_map_type_enum(int i, char *name) {
-  return bpf_map_type_enum_linux_5_17(i, name);
+  char namestr[128];
+  bpf_map_type_enum_linux_5_17(i, namestr);
+  strncpy(name, namestr, 128);
+  free(namestr);
 }
