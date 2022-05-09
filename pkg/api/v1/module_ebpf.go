@@ -233,22 +233,32 @@ func NewEBPFFileSystemData() (*EBPFFileSystemData, error) {
 // link_id:        19
 // prog_tag:       40bd9646d9b53ff8
 // prog_id:        106
+// pos:    0
+//
+// flags:  02000000
+// mnt_id: 15
+// ino:    11861
+// link_type:      raw_tracepoint
+// link_id:        28
+// prog_tag:       1b9b934ffae90cca
+// prog_id:        16097
+// tp_name:        sys_enter
+//
 func programDetails(p *Process, fddata string) string {
 	linkType := procfs.FileKeyValue(fddata, "link_type")
 	progId := procfs.FileKeyValue(fddata, "prog_id")
-
+	tpName := procfs.FileKeyValue(fddata, "tp_name")
 	var progDetails string
-	if linkType != "" {
-		//return linkType
-		progDetails = fmt.Sprintf("%s(%s)", linkType, progId)
-	} else {
-		progDetails = progId
+	if tpName != "" {
+		progDetails = fmt.Sprintf("%s %s", progDetails, tpName)
 	}
-
-	progIdint, _ := strconv.Atoi(progId)
-	sections := libxpid.BPFProgramSections(progIdint)
-	progDetails = fmt.Sprintf("%s %s", progDetails, strings.Join(sections, ","))
-	return progDetails
+	if linkType != "" {
+		progDetails = fmt.Sprintf("%s %s", progDetails, linkType)
+	}
+	if progId != "" {
+		progDetails = fmt.Sprintf("%s %s", progDetails, progId)
+	}
+	return strings.TrimSpace(progDetails)
 }
 
 // fddata is the filedescriptor data
