@@ -21,12 +21,14 @@ package libxpid
 // #include "xpid.h"
 // #include "stdlib.h"
 import "C"
-import "unsafe"
+import (
+	"unsafe"
+)
 
 // TODO We need to see what pid details we can get out of the kernel
 
 func BPFMapType(mapType int) string {
-	var name string = ""
+	var name string
 	cname := C.CString(name)
 	C.bpf_map_type_enum(C.int(mapType), cname)
 	defer C.free(unsafe.Pointer(cname))
