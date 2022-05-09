@@ -25,6 +25,6 @@ extern int proc_dir_chdir(pid_t pid);
 extern int proc_dir_dent(pid_t pid);
 
 // bpf.c
-extern void bpf();
+void bpf_map_type_enum(int i, char *name);
 
 #endif  // end LIB_XPID_H

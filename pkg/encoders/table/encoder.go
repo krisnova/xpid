@@ -149,9 +149,7 @@ func (j *TableEncoder) Encode(p *api.Process) ([]byte, error) {
 	str += fmt.Sprintf("\n")
 	if div {
 		str += drawLine("╌")
-
 	}
-
 	if p.DrawLineAfter {
 		str += drawLine("━")
 	}

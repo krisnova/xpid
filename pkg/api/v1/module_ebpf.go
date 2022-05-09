@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/kris-nova/xpid/pkg/libxpid"
@@ -120,10 +121,6 @@ func (m *EBPFModule) Execute(p *Process) error {
 			}
 		}
 	}
-
-	// Hacking in here during the stream
-	libxpid.BPFTodo()
-
 	return nil
 }
 
@@ -272,8 +269,13 @@ func programDetails(p *Process, fddata string) string {
 // map_id: 79
 // frozen: 0
 func mapDetails(p *Process, fddata string) string {
-	mapType := procfs.FileKeyValue(fddata, "map_type")
 	var mapDetails string
-	mapDetails = mapType
+	mapType := procfs.FileKeyValue(fddata, "map_type")
+	i, err := strconv.Atoi(mapType)
+	if err == nil {
+		mapDetails = libxpid.BPFMapType(i)
+	} else {
+		mapDetails = mapType
+	}
 	return mapDetails
 }
