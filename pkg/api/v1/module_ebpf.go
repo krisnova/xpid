@@ -18,11 +18,12 @@ package v1
 
 import (
 	"fmt"
-	"github.com/kris-nova/xpid/pkg/libxpid"
 	"io/ioutil"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/kris-nova/xpid/pkg/libxpid"
 
 	"github.com/kris-nova/xpid/pkg/procfs"
 )
@@ -235,17 +236,18 @@ func NewEBPFFileSystemData() (*EBPFFileSystemData, error) {
 func programDetails(p *Process, fddata string) string {
 	linkType := procfs.FileKeyValue(fddata, "link_type")
 	progId := procfs.FileKeyValue(fddata, "prog_id")
+
 	var progDetails string
-
-	// Hack in temporary
-	return linkType
-
 	if linkType != "" {
 		//return linkType
 		progDetails = fmt.Sprintf("%s(%s)", linkType, progId)
 	} else {
 		progDetails = progId
 	}
+
+	progIdint, _ := strconv.Atoi(progId)
+	sections := libxpid.BPFProgramSections(progIdint)
+	progDetails = fmt.Sprintf("%s %s", progDetails, strings.Join(sections, ","))
 	return progDetails
 }
 

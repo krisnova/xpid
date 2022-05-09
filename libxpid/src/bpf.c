@@ -14,8 +14,23 @@
 *                                                                           *
 \*===========================================================================*/
 
-#include <stdlib.h>
+#include <bpf/bpf.h>
+#include <linux/types.h>
 #include <string.h>
+#include <stdio.h>
+
+#include "xpid.h"
+
+void bpf_program_details(__u32 id, char *sec) {
+  int prog_fd;
+  prog_fd = bpf_prog_get_fd_by_id(id);
+  struct bpf_prog_info info = {};
+  __u32 info_len = sizeof(info);
+  bpf_obj_get_info_by_fd(prog_fd,&info, &info_len);
+  char infostr[1024];
+  sprintf(infostr, "%s:%llu", info.name, info.netns_ino);
+  strncpy(sec, infostr, 1024);
+}
 
 void bpf_map_type_enum_linux_5_17(int i, char *name) {
   switch (i) {
@@ -124,3 +139,4 @@ void bpf_map_type_enum_linux_5_17(int i, char *name) {
 void bpf_map_type_enum(int i, char *name) {
   bpf_map_type_enum_linux_5_17(i, name);
 }
+

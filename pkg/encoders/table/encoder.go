@@ -18,6 +18,7 @@ package table
 
 import (
 	"fmt"
+
 	"github.com/fatih/color"
 	encoder "github.com/kris-nova/xpid/pkg/encoders"
 	"golang.org/x/term"

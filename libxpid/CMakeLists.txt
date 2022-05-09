@@ -31,8 +31,7 @@ add_library(xpid SHARED
         src/bpf.c
         )
 
-#find_package(OpenSSL REQUIRED)
-#target_link_libraries(xpid OpenSSL::SSL)
+target_link_libraries(xpid bpf)
 
 #
 # Version of the library properties

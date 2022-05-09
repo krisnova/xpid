@@ -18,6 +18,7 @@
 #define LIB_XPID_H
 
 #include <sys/types.h>
+#include <linux/types.h>
 
 // proc_dir.c
 extern int proc_dir_opendir(pid_t pid);
@@ -26,5 +27,6 @@ extern int proc_dir_dent(pid_t pid);
 
 // bpf.c
 void bpf_map_type_enum(int i, char *name);
+void bpf_program_details(__u32 id, char *sec);
 
 #endif  // end LIB_XPID_H
