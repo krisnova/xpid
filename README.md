@@ -18,26 +18,29 @@ Investigate all pids
 Investigate pid 1
   xpid 1
 
-Investigate pids 1-10 in table view
-  xpid -o table 1-10
-
 Find all container processes on a system
   xpid -c
 
-Find all container processes between pids 100-200 in the color formatter
-  xpid -c -o color 100-200
+Find all processes in the same namespace(s) as pid 1
+  xpid --ns-in [mnt, net, pid, ipc, cgroup]
+
+Find all processes not in the same namespace(s) as current user
+  xpid --ns-out-user [mnt, net, pid, ipc, cgroup]
 
 Find all processes running with eBPF programs as JSON
   xpid --ebpf -o json <pid-query>
 
-Find all processes between specific values
+Find all processes running with eBPF programs, in a container, in /proc
+  xpid -b -c -p
+
+Find all processes between specific values (Query syntax)
   xpid <flags> +100      # Search pids up to 100
   xpid <flags> 100-2000  # Search pids between 100-2000 
   xpid <flags> 65000+    # Search pids 65000 or above
 
-Find all "hidden" processes on a system
-  # Looks for chdir, opendir, and dent in /proc
+Find all hidden processes on a system (slow)
   xpid -x <pid-query>
+
 ```
 
 ## Container pids (xpid -c) 📦
