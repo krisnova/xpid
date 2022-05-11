@@ -6,6 +6,13 @@ These eBPF programs are useful for testing `xpid`'s ability to find eBPF pids at
 
 # Building the programs
 
-```make
+```bash 
+make
+sudo make install
+```
 
+# Running the programs
+
+```bash
+./xpid-bpf
 ```
