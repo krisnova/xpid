@@ -17,10 +17,10 @@
 TARGET  := xpid-bpf
 CFLAGS  ?= -I /usr/include
 LDFLAGS ?=
-LIBS     =
+LIBS     = -l bpf
 STYLE    = Google
 
-all: probes build ## Build everything
+all: autogen probes build ## Build everything
 
 .PHONY: clean
 clean: ## Clean objects
@@ -38,12 +38,16 @@ build: ## Build the userspace program
 	clang $(CFLAGS) $(LDFLAGS) $(LIBS) -o $(TARGET) xpid-bpf.c -Wl,
 
 install: ## Install the target, and probe
+	mkdir -p /usr/share/xpid
 	cp $(TARGET) /usr/bin/$(TARGET)
-	cp $(PROBE) ${HOME}/.xpid/$(PROBE)
+	cp -v probe.*.o /usr/share/xpid/
 
 .PHONY: probes
 probes: probe-tracepoints ## Compile eBPF probes
 	@echo "  ->  Building probe"
+
+autogen:
+	bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h
 
 probe-tracepoints: probe = probe.tracepoints
 probe-tracepoints:

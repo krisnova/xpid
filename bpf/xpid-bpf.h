@@ -22,6 +22,8 @@
 #define PROBE_DEFAULT_DIR "/usr/share/xpid"
 #define PROBE_DEFAULT_FMT "/usr/share/xpid/%s"
 
-#define PROBE_TRACEPOINT "probe.tracepoints" // This MUST match the Makefile
+#define PROBE_MAX_ENTRIES 1024
+
+#define PROBE_TRACEPOINT "probe.tracepoints.o"  // This MUST match the Makefile
 
 #endif  // XPID_BPF_H
