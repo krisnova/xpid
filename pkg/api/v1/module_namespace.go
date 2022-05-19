@@ -59,13 +59,13 @@ func (m *NamespaceModule) Meta() *Meta {
 }
 
 type NamespaceModule struct {
-	Net    string
-	PID    string
-	Cgroup string
-	IPC    string
-	Mount  string
-	UTS    string
-	Time   string
+	Net    string `json:"net,omitempty"`
+	PID    string `json:"pid,omitempty"`
+	Cgroup string `json:"cgroup,omitempty"`
+	IPC    string `json:"ipc,omitempty"`
+	Mount  string `json:"mnt,omitempty"`
+	UTS    string `json:"uts,omitempty"`
+	Time   string `json:"time,omitempty"`
 }
 
 func (m *NamespaceModule) Execute(p *Process) error {

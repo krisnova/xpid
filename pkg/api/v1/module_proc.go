@@ -29,12 +29,12 @@ import (
 var _ ProcessExplorerModule = &ProcModule{}
 
 type ProcModule struct {
-	Opendir int
-	Chdir   int
-	Dent    int
-	Comm    string
-	Cmdline string
-	Status  string
+	Opendir int    `json:"opendir,omitempty"`
+	Chdir   int    `json:"chdir,omitempty"`
+	Dent    int    `json:"dents,omitempty"`
+	Comm    string `json:"comm,omitempty"`
+	Cmdline string `json:"cmdline,omitempty"`
+	Status  string `json:"status,omitempty"`
 }
 
 func NewProcModule() *ProcModule {

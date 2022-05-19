@@ -39,74 +39,74 @@ import "os/user"
 type Process struct {
 
 	// The process unique ID.
-	PID int64
+	PID int64 `json:"pid,omitempty"`
 
 	// showHeader is used to also encode the header for runtime encoders.
 	// This should never be used by formatting encoders such as JSON or similar.
-	ShowHeader    bool
-	DrawLineAfter bool
+	ShowHeader    bool `json:"-"`
+	DrawLineAfter bool `json:"-"`
 
 	// ProcessVisible is a combination of the values
 	// we get from libxpid that will determine if a process
 	// running in Linux is visible or not
-	ProcessVisible
+	ProcessVisible `json:"processVisible,omitempty"`
 
 	// User is the user associated with the process
 	//
 	// Group is a subset of User
-	User
+	User `json:"user,omitempty"`
 
 	// Name (proc/[pid]/comm)
 	// This file exposes the process's comm value—that is, the
 	// command name associated with the process.
-	Name string
+	Name string `json:"name,omitempty"`
 
 	// CommandLine (/proc/[pid]/cmdline)
 	// This read-only file holds the complete command line for
 	// the process, unless the process is a zombie.  In the
 	// latter case, there is nothing in this file: that is, a
 	// read on this file will return 0 characters
-	CommandLine string
+	CommandLine string `json:"commandLine,omitempty"`
 
 	// EBPF is an xpid specific field that attempts to detect
 	// if a specific PID is running any eBPF related probes or maps.
 	//
 	// Will be set to true is eBPF is detected.
-	EBPF bool
+	EBPF bool `json:"ebpf,omitempty"`
 
 	// Container is an xpid specific field that attempts to detect
 	// if a specific PID is running as a container
 	//
 	// Will be set to true if we suspect this is a container PID
-	Container bool
+	Container bool `json:"container,omitempty"`
 
 	// Thread is a bool that will be set if the process is part of
 	// a thread pool, or has a TGID that is unique from PID
 	//
 	// Reading from /proc/[pid]/status
-	Thread bool
+	Thread bool `json:"thread,omitempty"`
 
 	// Modules are embedded directly here
 
-	EBPFModule
-	ProcModule
-	ContainerModule
-	NamespaceModule
+	EBPFModule      `json:"ebpfModule,omitempty"`
+	ProcModule      `json:"procModule,omitempty"`
+	ContainerModule `json:"containerModule,omitempty"`
+	NamespaceModule `json:"namespaceModule,omitempty"`
 }
 
 // User is a user from the filesystem
 // This can be populated from process details, or from
 // the current user context.
 type User struct {
-	user.User
-	Group
-	ID   int
-	Name string
+	user.User `json:"-"`
+	Group     `json:"group,omitempty"`
+	ID        int    `json:"uid,omitempty"`
+	Name      string `json:"name,omitempty"`
 }
 
 type Group struct {
-	ID   int
-	Name string
+	ID   int    `json:"gid,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 type ProcessVisible struct {
@@ -114,12 +114,12 @@ type ProcessVisible struct {
 	// Opendir is if the /proc/[pid] directory can be "opened" or "listed".
 	// Failing Opendir is a sign that the process may be attempted to being
 	// obfuscated to the user at runtime.
-	Opendir int
+	Opendir int `json:"opendir,omitempty"`
 
 	// Chdir is if the /proc/[pid] directory can be "navigated" or "changed to".
 	// Failing chdir is a sign that the current user has invalid permission,
 	// or that something in the kernel is preventing the user from open the directory.
-	Chdir int
+	Chdir int `json:"chdir,omitempty"`
 
 	// After opendir we see if we can "list" files inside of the directory.
 	// This call happens at a higher level and will see if a directory
@@ -127,7 +127,7 @@ type ProcessVisible struct {
 	//
 	// In this case /proc is typically opened, and then the pid directories are
 	// matched against!
-	Dent int
+	Dent int `json:"dents,omitempty"`
 }
 
 func ProcessPID(pid int64) *Process {

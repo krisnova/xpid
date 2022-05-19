@@ -31,9 +31,9 @@ import (
 var _ ProcessExplorerModule = &EBPFModule{}
 
 type EBPFModule struct {
-	Mounts string
-	Progs  []string
-	Maps   []string
+	Mounts string   `json:"mount,omitempty"`
+	Progs  []string `json:"progs,omitempty"`
+	Maps   []string `json:"maps,omitempty"`
 }
 
 func NewEBPFModule() *EBPFModule {

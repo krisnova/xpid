@@ -26,7 +26,7 @@ var _ ProcessExplorerModule = &ContainerModule{}
 
 type ContainerModule struct {
 	cgroupNamespace       string
-	CgroupNamespaceUnique bool
+	CgroupNamespaceUnique bool `json:"isCgroupNamespaceUnique,omitempty"`
 }
 
 func NewContainerModule() *ContainerModule {
