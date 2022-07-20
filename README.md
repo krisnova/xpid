@@ -2,6 +2,14 @@
 
 It's [`nmap`](https://nmap.org/) but for pids. 🤓
 
+---
+
+Please help me become an independent programmer by donating directly to my `ko-fi` site below.
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/D1D8CXLHZ) 
+
+---
+
 `xpid` gives a user the ability to "investigate" for process details on a Linux system.
 
 For example a sleeping thread will have a directory `/proc/[pid]` that can be navigated to, but not listed.
